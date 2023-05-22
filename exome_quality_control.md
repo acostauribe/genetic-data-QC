@@ -1,16 +1,4 @@
----
-title: "Exome Quality Control Pipeline"
-author: "Juliana Acosta-Uribe"
-date: '2022-12-23'
-output: 
-  html_document: 
-    toc: yes
-    fig_caption: yes
-    number_sections: yes
-keep_md: true
----
-
-# Quality control tutorial
+#Exome Quality Control Pipeline
 
 This script/tutorial is an overview of the quality control (QC) processes that were done for the ReD-Lat Exomes.\
 Developed by Juliana Acosta-Uribe December 2022
@@ -130,9 +118,6 @@ PREFIX='redlat_exomes'
 ## I. Data description 
 bcftools stats $PREFIX.autosomes.vcf.gz > $PREFIX.autosomes.vchk.txt
 # General distribution of depth, missingness, heterozygosity
-vcftools --gzvcf $PREFIX.autosomes.vcf.gz --FILTER-summary --out $PREFIX.autosomes
-# Generates a summary of the number of SNPs and Ts/Tv ratio for each FILTER category. 
-# The output file has the suffix ".FILTER.summary"
 
 ## II. Individual missingness
 vcftools --gzvcf $PREFIX.autosomes.vcf.gz --missing-indv --out $PREFIX.autosomes
@@ -161,6 +146,12 @@ vcftools --gzvcf $PREFIX.autosomes.vcf.gz --missing-site --out $PREFIX.autosomes
 vcftools --gzvcf $PREFIX.autosomes.vcf.gz --site-mean-depth --out $PREFIX.autosomes
 # Generates a file containing the mean depth per site across all individuals. 
 # This output file has the suffix ".ldepth.mean"
+
+## VII. Filter check (VQSR)
+vcftools --gzvcf $PREFIX.autosomes.vcf.gz --FILTER-summary --out $PREFIX.autosomes
+# Generates a summary of the number of SNPs and Ts/Tv ratio for each FILTER category. 
+# The output file has the suffix ".FILTER.summary"
+
 ```
 
 **Checkpoint:** At the end of the "General report" you should have at least the 7 following files: I. Sample based: 1. missingness per sample (.imiss) 2. depth per sample (.idepth) 3. heterozugosity per sample (.het) II. Site based 1. Missingness per site (.lmiss) 2. Mean depth per site (.ldepth.mean) 3. VQSR quality (vqsr) III. General stats (.vchk)
@@ -508,10 +499,10 @@ awk '{ if($2 == 2) {print $1}}' exome_sample_sex.txt > female.samples.txt
 for chr in X
 do
 bcftools stats $PREFIX.$chr.vcf.gz > $PREFIX.$chr.vchk
-vcftools --gzvcf $PREFIX.$chr.vcf.gz --FILTER-summary --out $PREFIX.$chr
 vcftools --gzvcf $PREFIX.$chr.vcf.gz --missing-indv --out $PREFIX.$chr
 vcftools --gzvcf $PREFIX.$chr.vcf.gz --depth --out $PREFIX.$chr
 vcftools --gzvcf $PREFIX.$chr.vcf.gz --missing-site --out $PREFIX.$chr
+vcftools --gzvcf $PREFIX.$chr.vcf.gz --FILTER-summary --out $PREFIX.$chr
   # For site based metrics we will split the analyses into male and female
   for sex in female male
   do
