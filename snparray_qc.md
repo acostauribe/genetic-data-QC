@@ -17,10 +17,10 @@ For this pipeline you will need the following:
 This pipeline is designed to be run as an `R markdown` file in R Studio. 
 This way you can incorporate bash and R commands into a single process. However, it can also be run using both bash and r
 
-**Contents Table**\
+**Contents Table** \
 
-[0. Set up R Markdown](## 0. Set up R Markdown)
-[1. Filter for missingness](## 1.  Filter for missingness)
+![0. Set up R Markdown](## 0. Set up R Markdown)
+![1. Filter for missingness](## 1.  Filter for missingness)
 [2. Calculate heterozygosity](## 2. Calculate heterozygosity)
 [3. Check sex](## 3. Check sex)
 [4. Sumarize all sample metrics](## 4. Sumarize all sample metrics)
