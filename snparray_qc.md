@@ -57,7 +57,7 @@ Sys.setenv(PLINK='/home/acostauribe/bin/plink')
 Sys.setenv(KING='/home/acostauribe/bin/king')
 ```
 
-**ALWAYS** Take a look at the files before beginning\
+**ALWAYS** Take a look at the files before beginning
 * Do the Individual IDs (column 2 in `.fam`) match what you were expecting? 
 * Have the families been given a Family ID (column 1 in `.fam`)? 
 * Do the Individuals have their sex assigned (column 5 in `.fam`)?
