@@ -19,8 +19,8 @@ This way you can incorporate bash and R commands into a single process. However,
 
 **Contents Table** \
 
-![0. Set up R Markdown](## 0. Set up R Markdown)
-![1. Filter for missingness](## 1.  Filter for missingness)
+[0. Set up R Markdown](0. Set up R Markdown)
+[1. Filter for missingness](## 1.  Filter for missingness)
 [2. Calculate heterozygosity](## 2. Calculate heterozygosity)
 [3. Check sex](## 3. Check sex)
 [4. Sumarize all sample metrics](## 4. Sumarize all sample metrics)
