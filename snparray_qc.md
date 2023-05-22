@@ -1,15 +1,18 @@
 # Quality Control PIPELINE for the RedLat SNP array
 ## Developed by Juliana Acosta-Uribe 2023
 
-For this pipeline you will need the following:\
-**Data:** \
-1. A plink formatted `.bed`, `.fam`, `.bim` data set.\
-2. The reported sex of the samples, either as an annotation in column 5 of the .fam or as a separate text file `sex_info.txt`\
-3. Information about the individuals that belong to the same family, either as an the same Family ID in column 1 of the .fam or as a separate text file `family_info.txt`.\
+For this pipeline you will need the following:
+**Data:** 
+1. A plink formatted `.bed`, `.fam`, `.bim` data set.
+2. The reported sex of the samples, either as an annotation in column 5 of the .fam or as a separate text file `sex_info.txt`
+3. Information about the individuals that belong to the same family, either as an the same Family ID in column 1 of the .fam or as a separate text file `family_info.txt`.
 4. If the data set contains parent-offspring samples, the ID of the parents should be stated in columns 3 and 4 of the .fam, or given in a separate file `parent_info.txt`
 
 **Tools:** \
-[R](https://www.r-project.org/), [RStudio](https://posit.co/download/rstudio-desktop/), [plink](https://www.cog-genomics.org/plink2/), [king](https://www.kingrelatedness.com/)
+[R](https://www.r-project.org/),
+[RStudio](https://posit.co/download/rstudio-desktop/), 
+[plink](https://www.cog-genomics.org/plink2/),
+[king](https://www.kingrelatedness.com/)
 
 This pipeline is designed to be run as an `R markdown` file in R Studio. 
 This way you can incorporate bash and R commands into a single process. However, it can also be run using both bash and r
