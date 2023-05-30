@@ -488,7 +488,7 @@ fi
 After editing the *.fam* you can proceed to check relatedness:
 
 ```{bash id-relatedness}
-$KING -b ${PREFIX}.mind.geno.sex.het.dup.fid.pid.bed --related --rplot --degree 4 --prefix ${PREFIX}
+$KING -b ${PREFIX}.mind.geno.sex.het.dup.fid.pid.bed --related --rplot --degree 4 --cluster --prefix ${PREFIX}
 ```
 
 The output of this command produces two files: *${PREFIX}.kin* Relatedness in reported relationships *${PREFIX}.kin0*
