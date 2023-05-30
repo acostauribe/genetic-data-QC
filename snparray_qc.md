@@ -477,7 +477,7 @@ FAM1 | DAD | 0 | 0 | 1 | 1\
 
 ```{bash update-parentalID}
 # This command will look for a file called parent_info.txt if it doesn't find it, it will append a .pid to your bed fam bim to ensure compatibility with further steps
-if [[ $(find parent_info.txt == parent_info.txt ]]
+if [[ $(find parent_info.txt == parent_info.txt) ]]
 then
 $PLINK --bfile ${PREFIX}.mind.geno.sex.het.dup.fid --update-parents parent_info.txt --make-bed --out ${PREFIX}.mind.geno.sex.het.dup.fid.pid
 else
