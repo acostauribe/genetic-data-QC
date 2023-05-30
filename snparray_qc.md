@@ -518,7 +518,7 @@ $PLINK --bfile ${PREFIX}.mind.geno.sex.het.dup.fid.pid --set-me-missing --mendel
 After refining our data set we finally remove the variants and the individuals that are missing more than 5% of the data
 ```{bash final-missingness}
 # This command will look for a file ${PREFIX}.mind.geno.sex.het.dup.fid.pid.rel.me.bed if it doesn't find it, it will us ${PREFIX}.mind.geno.sex.het.dup.fid.pid.rel.bed instead
-if [[ $(find ${PREFIX}.mind.geno.sex.het.dup.fid.pid.rel.me.bed == ${PREFIX}.mind.geno.sex.het.dup.fid.pid.rel.me.bed ]]
+if [[ $(find ${PREFIX}.mind.geno.sex.het.dup.fid.pid.rel.me.bed) == ${PREFIX}.mind.geno.sex.het.dup.fid.pid.rel.me.bed ]]
 then
 $PLINK --bfile ${PREFIX}.mind.geno.sex.het.dup.fid.pid.rel.me --mind 0.05 --geno 0.05 --make-bed --out ${PREFIX}.qc
 else
