@@ -177,9 +177,10 @@ This functions is structured to plot initial metrics if `pre=TRUE`, and to compa
 pre_QC = new.env()
 
 plot_imiss =  function(ref_base, pathToFile, pre) { 
+  # Read the plink file with the missingness rate per sample (file.imiss)
   ref_base$imiss = read.delim(paste0(pathToFile, ".imiss"), header = T, sep = "")
-  # Get some stats of missingness rate per sample (given as a fraction)
-  ref_base$imiss_F_MISS = describe(ref_base$imiss$F_MISS) #describe function from the "Psych" package gives basic stats
+  # Read the missingness rate per sample (given as a fraction in the plink file) and get the main statistics [mean, standard deviation, max va;ue, min value]
+  ref_base$imiss_F_MISS = describe(ref_base$imiss$F_MISS) 
   if (pre) { # execute if before QC
     rownames(ref_base$imiss_F_MISS) = c("sample_missingness_F_preQC")
     title1 = ".autosomes.FLAGGED_sample_high_missingness.preQC.txt"
@@ -199,7 +200,7 @@ plot_imiss =  function(ref_base, pathToFile, pre) {
               quote = FALSE,
               sep = '\t')
 
-  # Missingness counts per sample (given as an integer where N = variants)
+  # Describe the number of missing variants per sample (given as an integer where N = variants)
   ref_base$imiss_N_MISS = describe(ref_base$imiss$N_MISS)
   if (pre) {# execute if before QC
     rownames(ref_base$imiss_N_MISS) = c("sample_missingness_N_preQC")
