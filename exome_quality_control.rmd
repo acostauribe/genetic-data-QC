@@ -9,11 +9,10 @@ output:
     number_sections: yes
 keep_md: true
 ---
-
 # Quality control tutorial
 
 This script/tutorial is an overview of the quality control (QC) processes that were done for the ReD-Lat Exomes.\
-Developed by Juliana Acosta-Uribe December 2022
+Developed by Juliana Acosta-Uribe December 2023
 
 For this pipeline you will need the following:\
 
@@ -122,7 +121,6 @@ mv $targets 1.data_preprocessing
 ```
 
 
-
 ## 2: General report of data quality and statistics previous to QC
 
 For the following steps we are going to split the data into autosomes and the sex chromosomes. The reason we do this is because quality metrics like *Depth* or *Missingness* are very different between autosomes (where all individuals are diploid) and X and Y (where individuals can be diploid or haploid)
@@ -131,84 +129,34 @@ For the following steps we are going to split the data into autosomes and the se
 
 #### i. Extract autosomes
 
+It is important to know how the chromosomes numbers are encoded in your vcf, e.g. they can be '1' or 'chr1'. You have to use the same string for the command to work
 
 ```{bash retain-autosomes, eval=FALSE, cache=FALSE, include=FALSE}
 ## Split into autosomes and sex chromosomes
-## It is important to know how the chromosomes numbers are encoded in your vcf, e.g. they can be '1' or 'chr1'. IN this case is chr1
 vcftools --gzvcf $PREFIX.vcf.gz --chr chr1 --chr chr2 --chr chr3 --chr chr4 --chr chr5 --chr chr6 --chr chr7 --chr chr8 --chr chr9 --chr chr10 --chr chr11 --chr chr12 --chr chr13 --chr chr14 --chr chr15 --chr chr16 --chr chr17 --chr chr18 --chr chr19 --chr chr20 --chr chr21 --chr chr22 --recode --recode-INFO-all --out $PREFIX.autosomes
 
 mv $PREFIX.autosomes.recode.vcf $PREFIX.autosomes.vcf
-bgzip $PREFIX.autosomes.vcf # redlat_exomes.autosomes.vcf.gz
+bgzip $PREFIX.autosomes.vcf 
 ```
 
 #### ii. Calculate quality metrics
 
-**Checkpoint:** At the end of the "General report" you should have at least the 7 following files:
-I. General stats (.vchk)
-II. Sample based: 
-1. missingness per sample (.imiss) \
-2. depth per sample (.idepth) \
-3. heterozygosity per sample (.het) \
-III. Site based \
-1. Missingness per site (.lmiss) \
-2. Mean depth per site (.ldepth.mean) \
-3. VQSR quality (vqsr) \
+At multiple steps in of this process we will like to check quality metrics, such as missing data. \
+We have provided a shell script `calculate_quality_metrics.sh` to generate the seven following files:
+
+I. General statistics (file.vchk)
+II. Sample based metrics: 
+1. missingness per sample (file.imiss) \
+2. depth per sample (file.idepth) \
+3. heterozygosity per sample (file.het) \
+III. Site based metrics: \
+1. Missingness per site (file.lmiss) \
+2. Mean depth per site (file.ldepth.mean) \
+3. VQSR quality (file.vqsr) 
 
 ```{bash autosome-preQC-get-stats, eval=FALSE, cache=FALSE, include=FALSE}
-# define a function called 'calculate_metrics' to calculate quality metrics from vcf files. The input 
-# parameter should be the file path to the vcf (without the extension)
-#calculate_qual_metrics() {
-
-  ## I. Data description
- # bcftools stats $1.vcf.gz > $1.vchk.txt
-
-  ## II. 1 Individual missingness
-  #vcftools --gzvcf $1.vcf.gz --missing-indv --out $1
-
-  # Generates a file reporting the missingness on a per-individual basis.
-  # The output file has the suffix ".imiss".
-  # Individuals whose missingness is >10% should be added to 'flagged_samples' file
-
-  ## II. 2. Individual depth
-  #vcftools --gzvcf $1.vcf.gz --depth --out $1
-
-  # Generates a file containing the mean depth per individual.
-  # This file has the suffix ".idepth".
-  # Individuals whose mean depth is <20 should be added to 'flagged_samples' file
-
-  ## II. 3. Individual heterozygosity
-  #vcftools --gzvcf $1.vcf.gz --het --out $1
-
-  # Inbreeding coefficient, F, is estimated for each individual using a method of moments.
-  # The resulting file has the suffix ".het"
-  # Individuals whose heterozygosity deviated more than 3 SD from the main should be added to 'flagged_samples' file
-
-  ##III. 1. Site missingness
-  #vcftools --gzvcf $1.vcf.gz --missing-site --out $1
-
-  # Generates a file reporting the missingness on a per-site basis.
-  # The file has the suffix ".lmiss".
-
-  ## III. 2.Site depth
-  #vcftools --gzvcf $1.vcf.gz --site-mean-depth --out $1
-
-  # Generates a file containing the mean depth per site across all individuals.
-  # This output file has the suffix ".ldepth.mean"
-
-  ## III. 3 VQRS filtering
-  # General distribution of depth, missingness, heterozygosity
-  #vcftools --gzvcf $1.vcf.gz --FILTER-summary --out $1
-  # Generates a summary of the number of SNPs and Ts/Tv ratio for each FILTER category.
-  # The output file has the suffix ".FILTER.summary"
-
-#}
-
-
-#calculate_qual_metrics $PREFIX.autosomes
-
-bash calculate_qual_metrics.sh $PREFIX.autosomes
+bash calculate_qual_metrics.sh $PREFIX.autosomes | tee calculate_qual_metrics.$PREFIX.autosomes.txt
 ```
-
 
 #### iii. Plot quality metrics
 
@@ -217,42 +165,10 @@ bash calculate_qual_metrics.sh $PREFIX.autosomes
 ###### - Missingness per sample
 
 ```{r autosome-preQC-stats-sample-missingess}
-#imiss = read.delim(paste0(PREFIX,".autosomes.imiss"), header = T, sep = "")
-# Get some stats of missingness rate per sample (given as a fraction)
-#imiss_F_MISS = describe(imiss$F_MISS) #describe function from the "Psych" package gives basic stats
-#rownames(imiss_F_MISS) = c("sample_missingness_F")
-# Individuals whose missingness is >10% should be identified
-#high_missingness = filter(imiss, F_MISS>0.1)
-# Save it. It may come useful for debugging
-#write.table(high_missingness, 
-#            (paste0(PREFIX,".autosomes.FLAGGED_sample_high_missingness.preQC.txt")),
-#            col.names = TRUE, 
-#            row.names = TRUE, 
-#            quote = FALSE,
-#            sep = '\t')
-# Missingness counts per sample (given as an integer where N = variants)
-#imiss_N_MISS = describe(imiss$N_MISS)
-#rownames(imiss_N_MISS) = c("sample_missingness_N")
+# Create a new environment variable. This variable will hold everything related to the data before QC
+pre_QC = new.env()
 
-#missingness_sample = bind_rows(imiss_F_MISS,
-#                              imiss_N_MISS)
-                               
-# Plot Missingness rate per sample
-#png(file=(paste0(PREFIX,".autosomes.sample_missingness.preQC.png")), 
-#    width=600, height=350)
-#hist(imiss$F_MISS,
-#     xlab="Missingness rate",
-#     ylab="Samples", 
-#     main="Missingness rate per sample in - Autosomes preQC", 
-#     col="paleturquoise3")
-#dev.off()
-
-
-# Create a new environment variable. This variable will hold everything related to
-# the data before QC
-pre_QC <- new.env()
-
-plot_imiss <-  function(ref_base, pathToFile, pre) { # environment variable, VCF file path, TRUE/FALSE
+plot_imiss =  function(ref_base, pathToFile, pre) { # environment variable, VCF file path, TRUE/FALSE
   ref_base$imiss = read.delim(paste0(pathToFile, ".imiss"), header = T, sep = "")
   # Get some stats of missingness rate per sample (given as a fraction)
   ref_base$imiss_F_MISS = describe(ref_base$imiss$F_MISS) #describe function from the "Psych" package gives basic stats
@@ -274,7 +190,6 @@ plot_imiss <-  function(ref_base, pathToFile, pre) { # environment variable, VCF
               row.names = TRUE, 
               quote = FALSE,
               sep = '\t')
-
 
   # Missingness counts per sample (given as an integer where N = variants)
   ref_base$imiss_N_MISS = describe(ref_base$imiss$N_MISS)
@@ -310,39 +225,11 @@ plot_imiss <-  function(ref_base, pathToFile, pre) { # environment variable, VCF
 }
 
 plot_imiss(pre_QC, paste0(PREFIX, '.autosomes'), TRUE)
-
-
-
 ```
 
 ###### - Depth per sample
 
 ```{r autosome-preQC-stats-sample-depth}
-# idepth = read.delim((paste0(PREFIX,".autosomes.idepth")), header = T, sep = "")
-# 
-# # Get some site depth stats:
-# depth_sample = describe(idepth$MEAN_DEPTH)
-# rownames(depth_sample) = c("sample_depth")
-# 
-# # Individuals whose mean depth is <20 should be identified
-# low_mean_depth = filter(idepth, MEAN_DEPTH<20)
-# write.table(low_mean_depth, 
-#             (paste0(PREFIX,".autosomes.FLAGGED_sample_low_mean_depth.preQC.txt")),
-#             col.names = TRUE, 
-#             row.names = TRUE, 
-#             quote = FALSE,
-#             sep = '\t')
-# 
-# # Plot depth per sample
-# png(file=(paste0(PREFIX,".autosomes.sample_depth.preQC.png")), 
-#     width=600, height=350)
-# hist(idepth$MEAN_DEPTH,
-#      xlab="Mean Depth ",
-#      ylab="Samples", 
-#      main="Mean Depth per sample - Autosomes preQC", 
-#      col="paleturquoise3",
-#      breaks=50)
-# dev.off()
 
 plot_idepth = function(base_ref, pathToFile, pre) {
   base_ref$idepth = read.delim((paste0(pathToFile,".idepth")), header = T, sep = "")
@@ -368,7 +255,6 @@ plot_idepth = function(base_ref, pathToFile, pre) {
                 row.names = TRUE,
                 quote = FALSE,
                 sep = '\t')
-
   
   # Plot depth per sample
   if (pre) {
@@ -397,51 +283,11 @@ plot_idepth = function(base_ref, pathToFile, pre) {
 
 plot_idepth(pre_QC, paste0(PREFIX, '.autosomes'), TRUE)
 
-
 ```
 
 ###### - Individual heterozygosity
 
 ```{r autosome-preQC-stats-sample-heterozygosity}
-# het = read.delim((paste0(PREFIX,".autosomes.het")), header = T, sep = "")
-# 
-# # Get some stats:
-# heterozygosity_sample = describe(het$F)
-# rownames(heterozygosity_sample) = c("sample_heterozygosity_F")
-# # Identify the values for +3 and -3 standard deviations
-# heterozygosity_low_limit = mean(het$F)-(3*(sd(het$F)))
-# heterozygosity_high_limit = mean(het$F)+(3*(sd(het$F)))
-# 
-# # Plot heterozygosity per sample
-# png(file=(paste0(PREFIX,".autosomes.sample_heterozygosity.preQC.png")), 
-#     width=600, height=350)
-# hist(het$F,  
-#      freq=TRUE, 
-#      xlab="Heterozygosity F coefficient",  
-#      ylab="Samples", 
-#      main="Heterozygosity rate per sample - Autosomes preQC",
-#      col="paleturquoise3",
-#      breaks=50)
-# abline(v = (heterozygosity_low_limit), col="red")
-# abline(v = (heterozygosity_high_limit), col="red")
-# abline(v = (mean(het$F)), col="blue") 
-# legend("topleft",
-#        c("+/-3 SD","mean"),
-#        col=c("red","blue"),
-#        pch=16)
-# dev.off()
-# 
-# # Individuals whose heterozygosity deviated more than 3 SD from the mean should be identified
-# het_outlier_low = filter(het, F<heterozygosity_low_limit)
-# het_outlier_high = filter(het, F>heterozygosity_high_limit)
-# het_outlier_both = bind_rows(het_outlier_low,
-#                              het_outlier_high)
-# write.table(het_outlier_both, 
-#             (paste0(PREFIX,".autosomes.FLAGGED_sample_heterozygosity_outliers.preQC.txt")),
-#             col.names = TRUE, 
-#             row.names = TRUE, 
-#             quote = FALSE,
-#             sep = '\t')
 
 plot_het = function(ref_base, pathToFile, pre) {
   ref_base$het = read.delim((paste0(pathToFile,".het")), header = T, sep = "")
@@ -501,42 +347,11 @@ plot_het = function(ref_base, pathToFile, pre) {
 
 plot_het(pre_QC, paste0(PREFIX, '.autosomes'), TRUE)
 
-
 ```
 
 ###### - Data distribution of sample based metrics
 
 ```{r autosome-preQC-stats-sample-summary}
-# # Generate a file with  descriptive statistics and distribution of the data
-# stats_sample = bind_rows(missingness_sample,
-#                          depth_sample,
-#                          heterozygosity_sample)
-# write.table(stats_sample,
-#            (paste0(PREFIX,".autosomes.sample_descriptive_statistics_preQC.txt")),
-#             col.names = TRUE, 
-#             row.names = TRUE, 
-#             quote = FALSE,
-#             sep = '\t')
-# print(stats_sample)
-# 
-# # Create a dataframe  with the samples that failed the autosome quality thresholds
-# high_missingness_id = select(high_missingness, INDV)
-# low_mean_depth_id = select(low_mean_depth, INDV)
-# het_outlier_low_id = select(het_outlier_low, INDV)
-# het_outlier_high_id = select(het_outlier_high, INDV)
-# flagged_samples_autosomes = bind_rows(high_missingness_id,
-#                                       low_mean_depth_id,
-#                                       het_outlier_low_id, 
-#                                       het_outlier_high_id)
-# 
-# # Save it. It may come useful for debugging
-# write.table(flagged_samples_autosomes, 
-#             (paste0(PREFIX,".autosomes.FLAGGED_sample_allstats.preQC.txt")),
-#             col.names = TRUE, 
-#             row.names = TRUE, 
-#             quote = FALSE,
-#             sep = '\t')
-
 
 sample_summary = function(ref_base, pre) { # environment variable, TRUE/FALSE
   # Generate a file with  descriptive statistics and distribution of the data
@@ -580,8 +395,6 @@ sample_summary = function(ref_base, pre) { # environment variable, TRUE/FALSE
 }
 
 sample_summary(pre_QC, TRUE)
-
-
 
 ```
 
@@ -644,35 +457,6 @@ We will add additional columns in the X and Y quality report `sample_metrics` as
 ###### - Missingness per site
 
 ```{r autosome-preQC-stats-plots-site-missingness}
-# lmiss = read.delim((paste0(PREFIX,".autosomes.lmiss")), header = T, sep = "")
-# 
-# # Get missingness rate per site stats (given as a fraction)
-# lmiss_F_MISS = describe(lmiss$F_MISS)
-# rownames(lmiss_F_MISS) = c("site_missingness_F")
-# # Missingness counts (given as an integer)
-# lmiss_N_MISS = describe(lmiss$N_MISS)
-# rownames(lmiss_N_MISS) = c("site_missingness_N")
-# missingness_site = bind_rows(lmiss_F_MISS,
-#                              lmiss_N_MISS)
-# # Plot Missingness per site
-# png(file=(paste0(PREFIX,".autosomes.site_missingness.preQC.histogram.png")), 
-#     width=600, height=350)
-# hist(lmiss$F_MISS,
-#         xlab="Missingness rate",
-#         ylab="Number of sites", 
-#         main="Missingness rate per site - Autosomes preQC", 
-#         col="paleturquoise3",
-#         breaks=50)
-# dev.off()
-# 
-# png(file=(paste0(PREFIX,".autosomes.site_missingness_preQC.box-plot.png")), 
-#     width=600, height=350)
-# boxplot(lmiss$F_MISS,
-#         ylab="Missingness rate",
-#         xlab="Raw dataset", 
-#         main="Missingness rate per site - Autosomes preQC", 
-#         col="paleturquoise3")
-# dev.off()
 
 plot_site_missingness = function(ref_base, pathToFile, pre) {
   if (pre) {
@@ -743,32 +527,6 @@ plot_site_missingness(pre_QC, paste0(PREFIX, '.autosomes'), TRUE)
 ###### - Depth per site
 
 ```{r autosome-preQC-stats-plots-site-depth}
-# ldepth.mean = read.delim((paste0(PREFIX,".autosomes.ldepth.mean")), header = T, sep = "")
-# 
-# # Get basic stats
-# depth_site = describe(ldepth.mean$MEAN_DEPTH)
-# rownames(depth_site) = c("site_mean_depth")
-# 
-# # Plot
-# png(file=(paste0(PREFIX,".autosomes.site_depth.preQC.png")), 
-#     width=600, height=350)
-# hist(ldepth.mean$MEAN_DEPTH,
-#      xlab="Mean depth",
-#      ylab="Sites", 
-#      main="Mean depth per site - Autosomes preQC", 
-#      col="paleturquoise3")
-# dev.off()
-# 
-# # Take a zoom at the lower end
-# png(file=(paste0(PREFIX,".autosomes.site.depth_preQC.low_end.png")), 
-#     width=600, height=350)
-# boxplot(ldepth.mean$MEAN_DEPTH,
-#         ylab="Mean depth per variant",
-#         xlab="Raw dataset", 
-#         main="Mean depth per site in Autosomes - preQC - 80X and lower",
-#         col = c("paleturquoise3"),
-#         ylim = c(0, 80))
-# dev.off()
 
 plot_site_depth = function(ref_base, pathToFile, pre) {
   ref_base$ldepth.mean = read.delim((paste0(pathToFile,".ldepth.mean")), header = T, sep = "")
@@ -815,21 +573,11 @@ plot_site_depth = function(ref_base, pathToFile, pre) {
 
 plot_site_depth(pre_QC, paste0(PREFIX, '.autosomes'), TRUE)
 
-
 ```
 
 ###### - Data distribution of site based metrics
 
 ```{r autosome-preQC-stats-plots-site-summary}
-# stats_sites = bind_rows(missingness_site,
-#                          depth_site)
-# write.table(stats_sites,
-#            (paste0(PREFIX,".autosomes.site_descriptive_statistics.preQC.txt")),
-#             col.names = TRUE, 
-#             row.names = TRUE, 
-#             quote = FALSE,
-#             sep = '\t')
-# print(stats_sites)
 
 site_summary = function(ref_base, pre) { # environment Var, TRUE/FALSE
   stats_sites = bind_rows(ref_base$missingness_site,
@@ -856,29 +604,6 @@ site_summary(pre_QC, TRUE)
 ###### - VQSR (Variant Quality Score Recalibration)
 
 ```{r autosome-preQC-stats-plots-site-VQSR}
-# filter_raw = read.delim((paste0(PREFIX,".autosomes.FILTER.summary")), header = T, sep = "")
-# print(filter_raw)
-# 
-# # Plot it
-# filter_raw %>%
-#   filter(!is.na(N_VARIANTS)) %>%
-#   arrange(N_VARIANTS) %>%
-#   mutate(FILTER=factor(FILTER, FILTER)) %>%
-#   ggplot( aes(x=FILTER, y=N_VARIANTS, label = N_VARIANTS) ) +
-#     geom_segment( aes(x=FILTER ,xend=FILTER, y=0, yend=N_VARIANTS), color="grey") +
-#     geom_point(size=3, color="#69b3a2") +
-#     geom_text(vjust=-1, size = 3) +
-#     coord_flip() +
-#     theme_minimal() +
-#     theme(
-#       panel.grid.minor.y = element_blank(),
-#       panel.grid.major.y = element_blank(),
-#       legend.position="none") +
-#     scale_y_continuous(name = "Number of variants") +
-#     labs(title = "VQSR in Autosomes - preQC")
-# ggsave(paste0(PREFIX,".autosomes.site_VQSR.pre-QC.png"),
-#       width = 7,
-#       height = 4)  
 
 plot_vqsr = function(ref_base, pathToFile, pre) {
   ref_base$filter = read.delim((paste0(pathToFile,".FILTER.summary")), header = T, sep = "")
@@ -1585,7 +1310,6 @@ Retain genotypes with Depth \>= 10 & Quality \>= 20 and check how this affected 
 ```{bash autosomes-genotype-QC, eval=FALSE, cache=FALSE, include=FALSE}
 FLAGGED="samples_to_remove.txt"
 
-
 # I. Retain genotypes with Depth >= 20 & Quality >= 20
 # Other genotypes will be set to missing
 vcftools --gzvcf $PREFIX.autosomes.vcf.gz --minDP $DP --minGQ $GQ --remove $FLAGGED --recode --recode-INFO-all --out $PREFIX.autosomes.DP$DP.GQ$GQ
@@ -1602,43 +1326,7 @@ Get the statistics for the new dataset
 
 ```{bash autosome-GT-stats, eval=FALSE, cache=FALSE, include=FALSE}
 
-## I. Data description
-#bcftools stats $PREFIX.autosomes.DP$DP.GQ$GQ.vcf.gz > $PREFIX.autosomes.DP$DP.GQ$GQ.vchk.txt
-# General distribution of depth, missingness, heterozygosity
-#vcftools --gzvcf $PREFIX.autosomes.DP$DP.GQ$GQ.vcf.gz --FILTER-summary --out $PREFIX.autosomes.DP$DP.GQ$GQ
-# Generates a summary of the number of SNPs and Ts/Tv ratio for each FILTER category.
-# The output file has the suffix ".FILTER.summary"
-
-## II. Individual missingness
-#vcftools --gzvcf $PREFIX.autosomes.DP$DP.GQ$GQ.vcf.gz --missing-indv --out $PREFIX.autosomes.DP$DP.GQ$GQ
-# Generates a file reporting the missingness on a per-individual basis.
-# The output file has the suffix ".imiss".
-# Individuals whose missingness is >10% should be added to 'flagged_samples' file
-
-## III. Individual depth
-#vcftools --gzvcf $PREFIX.autosomes.DP$DP.GQ$GQ.vcf.gz --depth --out $PREFIX.autosomes.DP$DP.GQ$GQ
-# Generates a file containing the mean depth per individual.
-# This file has the suffix ".idepth".
-# Individuals whose mean depth is <20 should be added to 'flagged_samples' file
-
-## VI. Individual heterozygosity
-#vcftools --gzvcf $PREFIX.autosomes.DP$DP.GQ$GQ.vcf.gz --het --out $PREFIX.autosomes.DP$DP.GQ$GQ
-# Inbreeding coefficient, F, is estimated for each individual using a method of moments.
-# The resulting file has the suffix ".het"
-# Individuals whose heterozygosity deviated more than 3 SD from the main should be added to 'flagged_samples' file
-
-## V. Site missingness
-#vcftools --gzvcf $PREFIX.autosomes.DP$DP.GQ$GQ.vcf.gz --missing-site --out $PREFIX.autosomes.DP$DP.GQ$GQ
-# Generates a file reporting the missingness on a per-site basis.
-# The file has the suffix ".lmiss".
-
-## VI. Site depth
-#vcftools --gzvcf $PREFIX.autosomes.DP$DP.GQ$GQ.vcf.gz --site-mean-depth --out $PREFIX.autosomes.DP$DP.GQ$GQ
-# Generates a file containing the mean depth per site across all individuals.
-# This output file has the suffix ".ldepth.mean"
-
 bash calculate_qual_metrics.sh $PREFIX.autosomes.DP$DP.GQ$GQ
-
 ```
 
 Plot missingness rates per site and per sample comparing raw dataset and after genotype quality control. Declare the same GQ and DP values
@@ -1651,153 +1339,25 @@ Plot missingness rates per site and per sample comparing raw dataset and after g
 DP_autosomes = 10
 GQ_autosomes = 20
 
-#imiss_GT = read.delim((paste0(PREFIX,".autosomes.DP",DP_autosomes,".GQ",GQ_autosomes,".imiss")), header = T, sep = "")
-# Get stats of missingness rate per sample (given as a fraction)
-#imiss_GT_F_MISS = describe(imiss_GT$F_MISS) 
-#rownames(imiss_GT_F_MISS) = c("sample_missingness_F_GT")
-# Individuals whose missingness is >10% should be identified
-#high_missingness = filter(imiss_GT, F_MISS>0.1)
-# Save it. It may come useful for debugging
-#write.table(high_missingness, 
-#            (paste0(PREFIX,".autosomes.FLAGGED_sample_high_missingness.preQC.GT.txt")),
-#            col.names = TRUE, 
-#            row.names = TRUE, 
-#            quote = FALSE,
-#            sep = '\t')
-
-# Missingness counts per sample (given as an integer where N = variants)
-#imiss_GT_N_MISS = describe(imiss_GT$N_MISS) 
-#rownames(imiss_GT_N_MISS) = c("sample_missingness_N_GT")
-
-#missingness_sample = bind_rows(imiss_GT_F_MISS,
-#                               imiss_GT_N_MISS)
-
-# Plot Missingness rate per sample
-#png(file=(paste0(PREFIX,".autosomes.sample_missingness_preQC.GT.png")), 
-#    width=600, height=350)
-#boxplot(imiss$F_MISS, imiss_GT$F_MISS,
-#        ylab = "Missingness rate",
-#        names = c("Raw dataset", "After genotype QC"),
-#        main = "Missingness rate per sample - Autosomes genotype QC", 
-#        col = c("paleturquoise3", "lavender"))
-#dev.off()
 post_QC = new.env()
-
 plot_imiss(post_QC, paste0(PREFIX, ".autosomes.DP10.GQ20"), FALSE)
-
-
 ```
 
 ###### - Depth per sample
 
 ```{r autosome-GT-stats-sample-depth}
-# idepth_GT = read.delim(paste0(PREFIX,".autosomes.DP",DP_autosomes,".GQ",GQ_autosomes,".idepth"), header = T, sep = "")
-# 
-# # Get some site depth stats:
-# depth_sample_GT = describe(idepth_GT$MEAN_DEPTH)
-# rownames(depth_sample) = c("sample_depth")
-# # Individuals whose mean depth is <20 should be identified
-# low_mean_depth = filter(idepth_GT, MEAN_DEPTH<20)
-# write.table(low_mean_depth, 
-#             (paste0(PREFIX,".autosomes.FLAGGED_sample_low_mean_depth.preQC.GT.txt")),
-#             col.names = TRUE, 
-#             row.names = TRUE, 
-#             quote = FALSE,
-#             sep = '\t')
-# 
-# # Plot depth per sample
-# png(file=(paste0(PREFIX,".autosomes.sample_depth.preQC.GT.png")), 
-#     width=600, height=350)
-# boxplot(idepth$MEAN_DEPTH, idepth_GT$MEAN_DEPTH,
-#      xlab="Mean Depth",
-#      ylab="Samples", 
-#      names = c("Raw dataset", "After genotype QC"),
-#      main="Mean Depth per sample - Autosomes genotype QC", 
-#      col = c("paleturquoise3", "lavender"),
-#      breaks=50)
-# dev.off()
-
 plot_idepth(post_QC, paste0(PREFIX, ".autosomes.DP10.GQ20"), FALSE)
-
 ```
 
 ###### - Individual heterozygosity
 
 ```{r autosome-GT-stats-sample-heterozygosity}
-#het_GT = read.delim((paste0(PREFIX,".autosomes.DP",DP_autosomes,".GQ",GQ_autosomes,".het")), header = T, sep = "")
-
-### Get some stats:
-# heterozygosity_sample = describe(het_GT$F)
-# rownames(heterozygosity_sample) = c("sample_heterozygosity_F")
-# ### Identify the values for +3 and -3 standard deviations
-# heterozygosity_low_limit = mean(het_GT$F)-(3*(sd(het_GT$F)))
-# heterozygosity_high_limit = mean(het_GT$F)+(3*(sd(het_GT$F)))
-# 
-# ### Plot heterozygosity per sample [we wont be comparing pre vs podt GT here]
-# png(file=(paste0(PREFIX,".autosomes.sample_heterozygosity.preQC.GT.png")), 
-#     width=600, height=350)
-# hist(het_GT$F,  
-#      freq=TRUE, 
-#      xlab="Heterozygosity F coefficient",  
-#      ylab="Samples", 
-#      main="Heterozygosity rate per sample - Autosomes genotype QC",
-#      col="lavender",
-#      breaks=50)
-# abline(v = (heterozygosity_low_limit), col="red")
-# abline(v = (heterozygosity_high_limit), col="red")
-# abline(v = (mean(het$F)), col="blue") 
-# legend("topleft",
-#        c("+/-3 SD","mean"),
-#        col=c("red","blue"),
-#        pch=16)
-# dev.off()
-# 
-# ### Individuals whose heterozygosity deviated more than 3 SD from the mean should be identified
-# het_outlier_low = filter(het_GT, F<heterozygosity_low_limit)
-# het_outlier_high = filter(het_GT, F>heterozygosity_high_limit)
-# het_outlier_both = bind_rows(het_outlier_low,
-#                              het_outlier_high)
-# write.table(het_outlier_both, 
-#             (paste0(PREFIX,".autosomes.FLAGGED_sample_heterozygosity_outliers.preQC.GT.txt")),
-#             col.names = TRUE, 
-#             row.names = TRUE, 
-#             quote = FALSE,
-#             sep = '\t')
-
 plot_het(post_QC, paste0(PREFIX, ".autosomes.DP10.GQ20"), FALSE)
 ```
 
 ###### - Data distribution of sample based metrics
 
 ```{r autosome-preQC-stats-sample-metrics}
-# stats_sample = bind_rows(missingness_sample,
-#                          depth_sample,
-#                          heterozygosity_sample)
-# write.table(stats_sample,
-#             (paste0(PREFIX,".autosomes.sample_descriptive_statistics_preQC.GTtxt")),
-#             col.names = TRUE, 
-#             row.names = TRUE, 
-#             quote = FALSE,
-#             sep = '\t')
-# print(stats_sample)
-# 
-# ## Create a dataframe  with the samples that failed the autosome quality thresholds
-# high_missingness_id = select(high_missingness, INDV)
-# low_mean_depth_id = select(low_mean_depth, INDV)
-# het_outlier_low_id = select(het_outlier_low, INDV)
-# het_outlier_high_id = select(het_outlier_high, INDV)
-# flagged_samples_autosomes_GT = bind_rows(high_missingness_id,
-#                                       low_mean_depth_id,
-#                                       het_outlier_low_id, 
-#                                       het_outlier_high_id)
-# 
-# ### Save it. It may come useful for debugging
-# write.table(flagged_samples_autosomes_GT, 
-#             (paste0(PREFIX,".autosomes.FLAGGED_sample_allstats.preQC.GT.txt")),
-#             col.names = TRUE, 
-#             row.names = TRUE, 
-#             quote = FALSE,
-#             sep = '\t')
 sample_summary(post_QC, FALSE)
 ```
 
@@ -1806,30 +1366,6 @@ sample_summary(post_QC, FALSE)
 ###### - Missingness per site
 
 ```{r autosome-GT-stats-plots-site-missingness}
-# lmiss_GT = read.delim((paste0(PREFIX,".autosomes.DP",DP_autosomes,".GQ",GQ_autosomes,".lmiss")), header = T, sep = "")
-# 
-# # Get missingness rate per site stats (given as a fraction
-# lmiss_GT_F_MISS = describe(lmiss$F_MISS)
-# rownames(lmiss_GT_F_MISS) = c("site_missingness_F_GT")
-# 
-# # Plot Missingness per site
-# png(file=(paste0(PREFIX,".autosomes.site_missingness_preQC.GT.png")), 
-#     width=600, height=350)
-# boxplot(lmiss$F_MISS, lmiss_GT$F_MISS,
-#         ylab ="Missingness rate",
-#         names = c("Raw dataset", "After genotype QC"),
-#         main = "Missingness rate per site - Autosomes genotype QC", 
-#         col = c("paleturquoise3", "lavender"))
-# dev.off()
-# 
-# png(file=(paste0(PREFIX,".autosomes.site_missingness_preQC.GT.low_end.png")), 
-#     width=600, height=350)
-# boxplot(lmiss$F_MISS, lmiss_GT$F_MISS,
-#         ylab ="Missingness rate",
-#         names = c("Raw dataset", "After genotype QC"),
-#         main = "Missingness rate per site < 0.01 - Autosomes genotype QC", 
-#         col = c("paleturquoise3", "lavender"),
-#         ylim = c(0,0.01))
 
 plot_site_missingness(post_QC, paste0(PREFIX, ".autosomes.DP10.GQ20"), FALSE)
 ```
@@ -1837,32 +1373,6 @@ plot_site_missingness(post_QC, paste0(PREFIX, ".autosomes.DP10.GQ20"), FALSE)
 ###### - Depth per site
 
 ```{r autosome-GT-stats-plots-site-depth}
-# ldepth.mean = read.delim((paste0(PREFIX,".autosomes.DP",DP_autosomes,".GQ",GQ_autosomes,".ldepth.mean")), header = T, sep = "")
-# 
-# ### Get basic stats
-# depth_site = describe(ldepth.mean$MEAN_DEPTH)
-# rownames(depth_site) = c("site_mean_depth")
-# 
-# ### Plot
-# png(file=(paste0(PREFIX,".autosomes.site_depth.preQC.GT.png")), 
-#     width=600, height=350)
-# hist(ldepth.mean$MEAN_DEPTH,
-#      xlab="Mean depth",
-#      ylab="Sites", 
-#      main="Mean depth per site - Autosomes preQC", 
-#      col="paleturquoise3")
-# dev.off()
-# 
-# ### Take a zoom at the lower end
-# png(file=(paste0(PREFIX,".autosomes.site.depth_preQC.low_end.png")), 
-#     width=600, height=350)
-# boxplot(ldepth.mean$MEAN_DEPTH,
-#         ylab="Mean depth per variant",
-#         xlab="Raw dataset", 
-#         main="Mean depth per site in Autosomes - preQC - 80X and lower",
-#         col = c("paleturquoise3"),
-#         ylim = c(0, 80))
-# dev.off()
 
 plot_site_depth(post_QC, paste0(PREFIX, ".autosomes.DP10.GQ20"), FALSE)
 ```
