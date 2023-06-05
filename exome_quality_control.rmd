@@ -49,7 +49,7 @@ knitr::opts_chunk$set(root.dir = "/home/acostauribe/Genetic-Sequencing_raw-data/
                       tidy=TRUE,
                       engine.path = list(plink = '/home/acostauribe/bin/plink',
                                          king = '/home/acostauribe/bin/king'))
-PREFIX="redlat_exomes"
+PREFIX="redlat_exome"
 DP=10
 GQ=20
 
@@ -75,18 +75,17 @@ Then, we will use bcftools to perform Left-alignment and normalization of Insert
 
 ```{bash extract-targets-align-reference-normalize, eval=FALSE, cache=FALSE, include=FALSE}
 RAW_dataset='ADFTD.vqsr.snp.indel'
-seq='exome'
-targets='xgen-exome-hyb-panel-v2-targets-hg38.bed'
+targets='xgen-exome-research-panel-v2-targets-hg38.bed'
 RAW_dataset_exclude_samples='excluded_samples_exome.txt'
-fasta_file='~/public/utilities/hg38.fa.gz'
+fasta_file='/home/acostauribe/public_html/Utilities/hg38.fa.gz'
 new_ids='exome_to_redlatIDs.txt'
 
 # I. Extract targets and ReDLat samples from the original file
 vcftools --gzvcf $RAW_dataset.vcf.gz 
---bed $targets 
---remove $RAW_dataset_exclude_samples 
---recode 
---recode-INFO-all 
+--bed $targets \
+--remove $RAW_dataset_exclude_samples \
+--recode \
+--recode-INFO-all \
 --out $RAW_dataset.redlat
 
 mv $RAW_dataset.redlat.recode.vcf $RAW_dataset.redlat.vcf
@@ -95,21 +94,20 @@ bgzip $RAW_dataset.redlat.vcf
 # II. Rename samples according to ReDLat sequence IDs
 # https://samtools.github.io/bcftools/bcftools.html#reheader
 
-bcftools reheader --samples $new_ids $RAW_dataset.redlat.vcf.gz > redlat_$seq.vcf
+bcftools reheader --samples $new_ids $RAW_dataset.redlat.vcf.gz --output $PREFIX.vcf.gz
 
 # III. bgzip and index vcf
-bgzip redlat_$seq.vcf
-tabix -p vcf redlat_$seq.vcf.gz #File should be indexed with Tabix
+tabix -p vcf $PREFIX.vcf.gz #File should be indexed with Tabix
 
 # IV. Check reference allele and normalize INDELs
-bcftools norm --check-ref ws --fasta-ref $fasta_file --output-type z redlat_$seq.vcf.gz > redlat_$seq.temp.vcf
+bcftools norm --check-ref ws --fasta-ref $fasta_file --output-type z $PREFIX.vcf.gz --output $PREFIX.temp.vcf.gz
 # --check-ref warn (w), exclude (x), or set/fix (s)
 # --output-type compressed VCF (z) 
 # fasta file was downloaded from https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/
 # The index file fasta.fai was created using http://www.htslib.org/doc/samtools-faidx.html
 
-mv redlat_$seq.temp.vcf.gz redlat_$seq.vcf.gz
-tabix -p vcf redlat_$seq.vcf.gz #File should be indexed with Tabix
+mv $PREFIX.temp.vcf.gz $PREFIX.vcf.gz
+tabix -p vcf $PREFIX.vcf.gz #File should be indexed with Tabix
 
 #Tidy up
 
@@ -129,33 +127,35 @@ For the following steps we are going to split the data into autosomes and the se
 
 #### i. Extract autosomes
 
-It is important to know how the chromosomes numbers are encoded in your vcf, e.g. they can be '1' or 'chr1'. You have to use the same string for the command to work
+It is important to know how the chromosomes numbers are encoded in your vcf, e.g. they can be '1' or 'chr1'. 
+You have to use the same string for the command to work
 
 ```{bash retain-autosomes, eval=FALSE, cache=FALSE, include=FALSE}
 ## Split into autosomes and sex chromosomes
-vcftools --gzvcf $PREFIX.vcf.gz --chr chr1 --chr chr2 --chr chr3 --chr chr4 --chr chr5 --chr chr6 --chr chr7 --chr chr8 --chr chr9 --chr chr10 --chr chr11 --chr chr12 --chr chr13 --chr chr14 --chr chr15 --chr chr16 --chr chr17 --chr chr18 --chr chr19 --chr chr20 --chr chr21 --chr chr22 --recode --recode-INFO-all --out $PREFIX.autosomes
+vcftools --gzvcf ${PREFIX}.vcf.gz --chr chr1 --chr chr2 --chr chr3 --chr chr4 --chr chr5 --chr chr6 --chr chr7 --chr chr8 --chr chr9 --chr chr10 --chr chr11 --chr chr12 --chr chr13 --chr chr14 --chr chr15 --chr chr16 --chr chr17 --chr chr18 --chr chr19 --chr chr20 --chr chr21 --chr chr22 --recode --recode-INFO-all --out ${PREFIX}.autosomes
 
-mv $PREFIX.autosomes.recode.vcf $PREFIX.autosomes.vcf
-bgzip $PREFIX.autosomes.vcf 
+mv ${PREFIX}.autosomes.recode.vcf ${PREFIX}.autosomes.vcf
+bgzip ${PREFIX}.autosomes.vcf 
 ```
 
 #### ii. Calculate quality metrics
 
-At multiple steps in of this process we will like to check quality metrics, such as missing data. \
+At multiple steps in of this process we will check some quality metrics of out dataset.
 We have provided a shell script `calculate_quality_metrics.sh` to generate the seven following files:
 
-I. General statistics (file.vchk)
+I. General statistics of the vcf (*file.vchk*)
 II. Sample based metrics: 
-1. missingness per sample (file.imiss) \
-2. depth per sample (file.idepth) \
-3. heterozygosity per sample (file.het) \
+1. missingness per sample (*file.imiss*) \
+2. depth per sample (*file.idepth*) \
+3. heterozygosity per sample (*file.het*) \
 III. Site based metrics: \
-1. Missingness per site (file.lmiss) \
-2. Mean depth per site (file.ldepth.mean) \
-3. VQSR quality (file.vqsr) 
+1. Missingness per site (*file.lmiss*) \
+2. Mean depth per site (*file.ldepth.mean*) \
+3. VQSR - VQSLOD threshold filters (*file.vqsr*) 
 
+The script should be run as follows:
 ```{bash autosome-preQC-get-stats, eval=FALSE, cache=FALSE, include=FALSE}
-bash calculate_qual_metrics.sh $PREFIX.autosomes | tee calculate_qual_metrics.$PREFIX.autosomes.txt
+bash calculate_qual_metrics.sh ${PREFIX}.autosomes
 ```
 
 #### iii. Plot quality metrics
@@ -164,11 +164,19 @@ bash calculate_qual_metrics.sh $PREFIX.autosomes | tee calculate_qual_metrics.$P
 
 ###### - Missingness per sample
 
-```{r autosome-preQC-stats-sample-missingess}
-# Create a new environment variable. This variable will hold everything related to the data before QC
+Create an R function (`plot_imiss`) to plot the individual missingness rate. 
+The `plot_imiss` function requires the following variables:
+1. **ref_base**: Environment variable, e.g. 'pre_QC'
+2. **pathToFile**: VCF file name excluding the '.vcf.gz' e.g. 'PREFIX.autosomes'
+3. **pre**: Is this the pre quality control analysis? e.g. TRUE/FALSE
+
+This functions is structured to plot initial metrics if `pre=TRUE`, and to compare pre and post qc metrics if `pre=FALSE`
+```{r autosome-preQC-stats-sample-missingess-create}
+# Create a new environment variable. 
+# This variable will hold everything related to the data before QC
 pre_QC = new.env()
 
-plot_imiss =  function(ref_base, pathToFile, pre) { # environment variable, VCF file path, TRUE/FALSE
+plot_imiss =  function(ref_base, pathToFile, pre) { 
   ref_base$imiss = read.delim(paste0(pathToFile, ".imiss"), header = T, sep = "")
   # Get some stats of missingness rate per sample (given as a fraction)
   ref_base$imiss_F_MISS = describe(ref_base$imiss$F_MISS) #describe function from the "Psych" package gives basic stats
@@ -223,7 +231,10 @@ plot_imiss =  function(ref_base, pathToFile, pre) { # environment variable, VCF 
   dev.off()
   }
 }
+```
 
+Run the R function with your data
+```{r autosome-preQC-stats-sample-missingess-run}
 plot_imiss(pre_QC, paste0(PREFIX, '.autosomes'), TRUE)
 ```
 
