@@ -15,15 +15,23 @@ keep_md: true
 This script/tutorial is an overview of the quality control (QC) processes that were done for the ReD-Lat Exomes.\
 Developed by Juliana Acosta-Uribe December 2022
 
-You will need: - List of samples to exclude: 'excluded_samples_exome.txt' - fasta_file of the reference genome: '\~/public/utilities/hg38.fa.gz' - a list with the redlat ids and the libary id new_ids'exome_to_redlatIDs.txt' - targets of the exome panel 'xgen-exome-hyb-panel-v2-targets-hg38.bed' - a dataframe with disclosed sex of samples. sex should be encoded 1=male, 2=female 'exome_sample_sex.txt'
+For this pipeline you will need the following:\
+
+**Data:**\
+1. A  joint called `VCF file` representing your samples.\
+2. The reported sex of the samples a separate text file *sex_info.txt* with 2 columns `Individual_ID, SEX` (1=male, 2=female, 0=no data) \
+3. Information about the individuals that belong to the same family, and if the data set contains parent-offspring samples the ID of the parents should be added as well. This information should be provided as 
+
+*.fam* or as a separate text file *family_info.txt* with4 columns `Individual_ID, Individual_ID, Family_ID, Individual_ID`\
+4 should be stated in columns 3 and 4 of the *.fam*, or given in a separate file *parent_info.txt* with 4 columns:
+`Family_ID, Individual_ID, Paternal_ID, Maternal_ID`\
+
 
 ## 1. Set up environment and data for QC
 
 ### 1.a Set up R
 
 It may be necessary to start R before, as you need to have knitr to run this markdown properly
-
-
 ```{r markdown-setup}
 ## Install and load required packages
 #install.packages("psych")
@@ -56,13 +64,15 @@ Sys.setenv(GQ=GQ)
 
 We will use **vcftools** and **bcftools** to clean our "starting dataset".
 
-Since these are exomes, we first need to extract the 'exome sequencing targets' from the raw dataset. Targets are a '.bed' file downloaded from IDT website for xGen™ Exome Hybridization Panel v2 hg38 [the sequencing platform that was used]. This .bed file has three columns: *chr*, *start bp*, *end bp*. Additionally, we will remove individuals that are not part of the ReDLat project Exomes, but are in the same file.
+Since these are exomes, we first need to extract the 'exome sequencing targets' from the raw dataset. Targets are a [.bed](https://en.wikipedia.org/wiki/BED_(file_format)) file that you can download from the company that designed the array that was used. For redlat we used xGen™ Exome Hybridization Panel v2 hg38. This `.bed` file has three columns: *chr*, *start bp*, *end bp*. 
+
+In this step we will also remove individuals that are not part of the ReDLat project Exomes but are in the same vcf file.
 
 **Note**: VCFtools output can be compressed directly into a .gz file by adding `–stdout | gzip -c > newname.gz`, but it wont generate a .log file.
 
-Then, we will use bcftools to perform Left- alignment and normalization of indels, as well as a check to verify that the REF/ALT alleles are correct. However, it will NOT fix strand issues in your VCF (make sure VCF is properly aligned).
+Then, we will use bcftools to perform Left-alignment and normalization of Insertions and Deletions (indels), as well as a check to verify that the REF/ALT alleles are correct. However, it will NOT fix strand issues in your VCF (make sure VCF is properly aligned).
 
-**Keep in mind**: Unlike R, all bash code chunks in a markdown are independent in memory, and the variables created in previous chunks will not be available in latter chunks. you have to define your variables/alias at each chunk
+**Keep in mind**: Unlike R, all bash code chunks in a markdown are independent in memory, and the variables created in previous chunks will not be available in latter chunks. If you want to reuse a variable to either have to define your variables/alias at each chunk or set them as environment variables `Sys.setenv`.
 
 ```{bash extract-targets-align-reference-normalize, eval=FALSE, cache=FALSE, include=FALSE}
 RAW_dataset='ADFTD.vqsr.snp.indel'
