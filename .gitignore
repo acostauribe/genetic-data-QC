@@ -1,0 +1,8 @@
+# Ignore logs
+**/logs
+*.log
+
+# Ignore VCFs
+*.vcf
+*.vcf.gz
+
