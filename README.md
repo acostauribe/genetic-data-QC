@@ -69,7 +69,10 @@ If you are working with Exome or Genome data, you will also need:\
 - Specify your reference genome ('hg19', 'hg38')
 - Import sample data (if provided)
 2. Customize the quality control process
-  -
+- Do you want to do filter variant calls for genotype depth (DP) and Genotype Quality (GQ)?
+- Do you want to keep only the variants with PASS in the VQSR filtering?
+- Do you want to check for known and cryptic relatedness among samples?
+-  Do you want to create directories and to organize your data as you go?
 3. Start Quality Control process
 4. Genotype Quality control
 5. Filter for missingness
