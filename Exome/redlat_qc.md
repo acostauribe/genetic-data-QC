@@ -1,11 +1,7 @@
----
-title: "Quality control pipeline"
-author: "Juliana Acosta-Uribe"
-date: '2023-06-28'
-output:
-  html_document:
-    keep_md: yes
----
+# "Quality control pipeline"
+## author: "Juliana Acosta-Uribe"
+### date: '2023-06-28'
+
 
 This pipeline is designed to be run as an [R markdown](https://rmarkdown.rstudio.com/lesson-1.html) file in R Studio. This way you can run it in a step-by-step mode. However, you could also run it directly from the r command line if you already have the `sample_data.txt` and the `problematic_relatedness.txt` files in your workspace.
 
