@@ -1,5 +1,4 @@
 # Quality control pipeline for the ReD-Lat genomic data
-
 #### Developed by Juliana Acosta-Uribe for the ReD-Lat Consortium 2023
 
 The [redlat_qc.rmd](redlat_qc.rmd) pipeline is designed to be run as an [R markdown](https://rmarkdown.rstudio.com/lesson-1.html) file in R Studio. This way you can run it in a step-by-step mode. 
@@ -16,13 +15,13 @@ For this pipeline you will need the following:
 
 A plink formatted .*bed*, .*fam*, .*bim* set, or a bgzipped *.vcf.gz* file.
 
-**Always Take a look at the files before beginning:**\
-If you start with a plink dataset: \ 
-- Do the Individual IDs (column 2 in *.fam*) match what you were expecting? \ 
-- Have the families been given a Family ID (column 1 in *.fam*)? \ 
-- Do the Individuals have their sex assigned (column 5 in *.fam*? \ 
-- Do the variants in the *.bim* have an identifier (column 2 in *.bim*)? Some analyses will require this information, and we may have to incorporate it to the *.fam*/*.bim* if its not already there. \
-Make sure your files are properly aligned and the alleles are being called from the correct strand. INDELs should be [left aligned and normalized](https://samtools.github.io/bcftools/bcftools.html#norm).
+> **Always Take a look at the files before beginning:**
+> If you start with a plink dataset: 
+> - Do the Individual IDs (column 2 in *.fam*) match what you were expecting? 
+> - Have the families been given a Family ID (column 1 in *.fam*)?  
+> - Do the Individuals have their sex assigned (column 5 in *.fam*?  
+> - Do the variants in the *.bim* have an identifier (column 2 in *.bim*)? Some analyses will require this information, and we may have to incorporate it to the *.fam*/*.bim* if its not already there. 
+> Make sure your files are properly aligned and the alleles are being called from the correct strand. INDELs should be [left aligned and normalized](https://samtools.github.io/bcftools/bcftools.html#norm).
 
 If you are starting with a *.vcf*, or your *.fam* does not have the sex /family of the samples already specified please provide an additional file `sample_data.txt` with a header as follows:
 
@@ -59,9 +58,9 @@ If you are working with Exome or Genome data, you will also need:
 -[bcftools](https://samtools.github.io/bcftools/bcftools.html)
 
 
-### Contents Table:
+### Workflow:
 
-[1. Set up your environment](#section-1)\
+[1. Set up your environment](redlat_qc.rmd/#section-1)\
 [2. Customize the quality control process](#section-2)\
 [3. Start Quality Control process](#section-3)\
 [4. Genotype Quality control](#section-4)\
