@@ -60,7 +60,7 @@ If you are working with Exome or Genome data, you will also need:\
 
 ### Workflow:
 
-1. Set up your environment
+1. **Set up your environment**
 - Install required packages
 - Set your working directory
 - Set up path to software
@@ -68,16 +68,52 @@ If you are working with Exome or Genome data, you will also need:\
 - Define the type of data you will be working with. ('GENOME', 'EXOME', 'ARRAY')
 - Specify your reference genome ('hg19', 'hg38')
 - Import sample data (if provided)
-2. Customize the quality control process
+
+2. **Customize the quality control process**
 - Do you want to do filter variant calls for genotype depth (DP) and Genotype Quality (GQ)?
 - Do you want to keep only the variants with PASS in the VQSR filtering?
 - Do you want to check for known and cryptic relatedness among samples?
--  Do you want to create directories and to organize your data as you go?
-3. Start Quality Control process
-4. Genotype Quality control
-5. Filter for missingness
-6. Calculate heterozygosity
-7. Check sex
-8. Identify duplicates
-9. Calculate relatedness(optional)
-  0. Remove variants & Individuals and with missingness ≥5%
+- Do you want to create directories and to organize your data as you go?
+  
+3. **Start Quality Control process**
+- Generate and plot basic statistics:
+- *I. General statistics* [.vchk](https://samtools.github.io/bcftools/bcftools.html#stats)
+- *II. Sample based metrics* [metrics](https://vcftools.sourceforge.net/man_latest.html#OUTPUT%20OPTIONS)
+-- missingness per sample (.imiss)
+-- depth per sample (.idepth)
+- III. Site based metrics*
+-- Missingness per site (.lmiss)
+-- Mean depth per site (.ldepth.mean)
+--- VQSR quality [vqsr](https://gatk.broadinstitute.org/hc/en-us/articles/360035531612-Variant-Quality-Score-Recalibration-VQSR-)
+  
+4. **Genotype Quality control (Only for Exome and Genome data)**
+- Filter your genotypes according to genotype depth (DP) and genotype quality (GQ)
+- Filter your sites according to their Variant Quality Score Recalibration ranks
+- *Genotypes with DP and GQ below desired thresholds are turned missing values*
+  
+5. **Filter for missingness** 
+- Identify samples and variants (sites) missing more than 10% of data and remove them. The 10% or 0.1 threshold can be modified as desired.
+- *Samples and variants with missingness over the desired threshold will be removed*
+
+6. **Calculate heterozygosity** 
+- Use plink to calculate sample heterozygosity and then exclude individuals that are beyoond 3 Standard deviations from the cohort mean. 
+- *Heterozygosity outliers will be removed*
+
+7. **Check sex**
+- Use plink to determine chromosomal sex according to X and Y chromosomes \
+- *Individuals with discrepancy between genetic and disclosed sex will be removed*
+   
+8. **Identify duplicates** \
+- Use King to detect duplicate samples
+- * Duplicate samples are removed*
+    
+9. **Calculate relatedness(optional)**
+- Use King to identify samples that are up tho 4th degree of relatedness
+- ⚠️ You have to manually check if King's inference match your previous kinship knowledge.
+- * Samples with cryptic relatedness are removed*
+
+10. **Remove variants & Individuals and with missingness ≥5%**
+- Do a final removal of samples and variants with high missigness.
+- *Samples and variants with missingness over the desired threshold will be removed*
+
+
