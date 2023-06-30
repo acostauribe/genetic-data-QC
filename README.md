@@ -12,7 +12,7 @@ You could also edit [redlat_qc.rmd](redlat_qc.rmd) and run it directly from the 
 library(rmarkdown) 
 render("path/to/your/file.Rmd")
 ```
-The Exome folder has a full rendered report(E xome 
+The Exome folder has a full rendered [markdown report](Exome/redlat_qc.md)
 
 
 For this Quality control pipeline you will need the following:
