@@ -5,7 +5,7 @@ The [redlat_qc.rmd](redlat_qc.rmd) pipeline is designed to be run as an [R markd
 
 ### Usage
 
-Download the [redlat_qc.rmd](redlat_qc.rmd) file to your local [RStudio](https://posit.co/download/rstudio-desktop/) and modify `[1. Set up your environment]` and `[2. Customize the quality control process]` to fit your quality control goals. (More information below)
+Download the [redlat_qc.rmd](redlat_qc.rmd) file to your local [RStudio](https://posit.co/download/rstudio-desktop/) and modify *1. Set up your environment* and *2. Customize the quality control process* to fit your quality control goals. (More information below)
 
 You could also edit [redlat_qc.rmd](redlat_qc.rmd) and run it directly from the r command line if you already have the `sample_data.txt` and the `problematic_relatedness.txt` files in your workspace. 
 ```
@@ -51,7 +51,7 @@ A trio would look like this (order of the columns does not matter)
 R is expecting a tab delimited file. If your file is delimited by spaces you can fix it with the following bash command `sed -i 's/ /\t/g'  sample_data.txt`
 
 
-### Tools:
+### Software:
 
 -[R](https://www.r-project.org/)\
 -[RStudio](https://posit.co/download/rstudio-desktop/)\
