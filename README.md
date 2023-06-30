@@ -1,22 +1,27 @@
 # Quality control pipeline for the ReD-Lat genomic data
 #### Developed by Juliana Acosta-Uribe for the ReD-Lat Consortium 2023
 
-The [redlat_qc.rmd](redlat_qc.rmd) pipeline is designed to be run as an [R markdown](https://rmarkdown.rstudio.com/lesson-1.html) file in R Studio. This way you can run it in a step-by-step mode. 
+The [redlat_qc.rmd](redlat_qc.rmd) pipeline is designed to be run as an [R markdown](https://rmarkdown.rstudio.com/lesson-1.html) file in [RStudio](https://posit.co/download/rstudio-desktop/). This way you can run it in a step-by-step mode and generate a rendered quality control report. 
 
-You could also run it directly from the r command line if you already have the `sample_data.txt` and the `problematic_relatedness.txt` files in your workspace.
+### Usage
+
+Download the [redlat_qc.rmd](redlat_qc.rmd) file to your local [RStudio](https://posit.co/download/rstudio-desktop/) and modify `[1. Set up your environment]` and `[2. Customize the quality control process]` to fit your quality control goals. (More information below)
+
+You could also edit [redlat_qc.rmd](redlat_qc.rmd) and run it directly from the r command line if you already have the `sample_data.txt` and the `problematic_relatedness.txt` files in your workspace. 
 ```
 library(rmarkdown) 
 render("path/to/your/file.Rmd")
 ```
+The Exome folder has a full rendered report(E xome 
 
 
-For this pipeline you will need the following:
+For this Quality control pipeline you will need the following:
 
 ### Data:
 
 A plink formatted *file.bed*, *file.fam*, *file.bim* set, or a bgzipped *file.vcf.gz* file.
 
-> **Always Take a look at the files before beginning:**
+> **Always Take a look at your files before beginning:** \
 > If you start with a plink dataset: 
 > - Do the Individual IDs (column 2 in *file.fam*) match what you were expecting? 
 > - Have the families been given a Family ID (column 1 in *file.fam*)?  
