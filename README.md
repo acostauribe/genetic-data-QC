@@ -105,17 +105,17 @@ If you are working with Exome or Genome data, you will also need:\
 - *Heterozygosity outliers will be removed*
 
 7. **Check sex**
-- Use plink to determine chromosomal sex according to X and Y chromosomes \
+- Use plink to determine chromosomal sex according to X and Y chromosomes 
 - *Individuals with discrepancy between genetic and disclosed sex will be removed*
    
-8. **Identify duplicates** \
+8. **Identify duplicates** 
 - Use King to detect duplicate samples
-- * Duplicate samples are removed*
+- *Duplicate samples are removed*
     
 9. **Calculate relatedness(optional)**
 - Use King to identify samples that are up tho 4th degree of relatedness
 - ⚠️ You have to manually check if King's inference match your previous kinship knowledge.
-- * Samples with cryptic relatedness are removed*
+- *Samples with cryptic relatedness are removed*
 
 10. **Remove variants & Individuals and with missingness ≥5%**
 - Do a final removal of samples and variants with high missigness.
