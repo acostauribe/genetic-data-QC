@@ -27,7 +27,7 @@ A plink formatted *file.bed*, *file.fam*, *file.bim* set, or a bgzipped *file.vc
 > - Have the families been given a Family ID (column 1 in *file.fam*)?  
 > - Do the Individuals have their sex assigned (column 5 in *file.fam*?  
 > - Do the variants in the *.bim* have an identifier (column 2 in *file.bim*)? Some analyses will require this information, and we may have to incorporate it to the *file.fam*/*file.bim* if its not already there. \
-> Make sure your files are properly aligned and the alleles are being called from the correct strand. INDELs should be [left aligned and normalized](https://samtools.github.io/bcftools/bcftools.html#norm).
+> ⚠️ Make sure your files are properly aligned and the alleles are being called from the correct strand. INDELs should be [left aligned and normalized](https://samtools.github.io/bcftools/bcftools.html#norm).
 
 If you are starting with a **file.vcf*, or your **file.fam* does not have the sex/family of the samples already specified please provide an additional file `sample_data.txt` that includes all the individuals in your data and has the following header:
 
@@ -48,7 +48,7 @@ A trio would look like this (order of the columns does not matter)
 | FID1 | MOM | 0   | 0   | 2   | 1     |
 | FID1 | DAD | 0   | 0   | 1   | 1     |
 
-R is expecting a tab delimited file. If your file is delimited by spaces you can fix it with the following bash command\ 
+R is expecting a tab delimited file. If your file is delimited by spaces you can fix it with the following bash command \ 
 `sed -i 's/ /\t/g'  sample_data.txt`
 
 
