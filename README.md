@@ -5,14 +5,14 @@ The [redlat_qc.rmd](redlat_qc.rmd) pipeline is designed to be run as an [R markd
 
 ### Usage
 
-Download the [redlat_qc.rmd](redlat_qc.rmd) file to your local [RStudio](https://posit.co/download/rstudio-desktop/) and modify *1. Set up your environment* and *2. Customize the quality control process* to fit your quality control goals. (More information below)
+Download the [redlat_qc.rmd](redlat_qc.rmd) file to your local [RStudio](https://posit.co/download/rstudio-desktop/) and modify steps *1. Set up your environment* and *2. Customize the quality control process* to fit your quality control goals. (More information below)
 
 You could also edit [redlat_qc.rmd](redlat_qc.rmd) and run it directly from the r command line if you already have the `sample_data.txt` and the `problematic_relatedness.txt` files in your workspace. 
 ```
 library(rmarkdown) 
 render("path/to/your/file.Rmd")
 ```
-The Exome folder has a full rendered [markdown report](Exome/redlat_qc.md)
+The Exome folder has a full rendered [markdown report](Exome/redlat_qc.md) as an example.
 
 
 For this Quality control pipeline you will need the following:
@@ -26,10 +26,10 @@ A plink formatted *file.bed*, *file.fam*, *file.bim* set, or a bgzipped *file.vc
 > - Do the Individual IDs (column 2 in *file.fam*) match what you were expecting? 
 > - Have the families been given a Family ID (column 1 in *file.fam*)?  
 > - Do the Individuals have their sex assigned (column 5 in *file.fam*?  
-> - Do the variants in the *.bim* have an identifier (column 2 in *file.bim*)? Some analyses will require this information, and we may have to incorporate it to the *file.fam*/*file.bim* if its not already there. 
+> - Do the variants in the *.bim* have an identifier (column 2 in *file.bim*)? Some analyses will require this information, and we may have to incorporate it to the *file.fam*/*file.bim* if its not already there. \
 > Make sure your files are properly aligned and the alleles are being called from the correct strand. INDELs should be [left aligned and normalized](https://samtools.github.io/bcftools/bcftools.html#norm).
 
-If you are starting with a **file.vcf*, or your **file.fam* does not have the sex/family of the samples already specified please provide an additional file `sample_data.txt` with a header as follows:
+If you are starting with a **file.vcf*, or your **file.fam* does not have the sex/family of the samples already specified please provide an additional file `sample_data.txt` that includes all the individuals in your data and has the following header:
 
 **IID** ID of the sample as it is in the plink IID or in the VCF\
 **SEX** should be specified (1=male, 2=female, 0=no data)\
@@ -121,4 +121,4 @@ If you are working with Exome or Genome data, you will also need:\
 - Do a final removal of samples and variants with high missigness.
 - *Samples and variants with missingness over the desired threshold will be removed*
 
-
+All of these steps are extensively described in [redlat_qc.rmd](redlat_qc.rmd) 
