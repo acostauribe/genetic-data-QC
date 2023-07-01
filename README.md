@@ -48,7 +48,8 @@ A trio would look like this (order of the columns does not matter)
 | FID1 | MOM | 0   | 0   | 2   | 1     |
 | FID1 | DAD | 0   | 0   | 1   | 1     |
 
-R is expecting a tab delimited file. If your file is delimited by spaces you can fix it with the following bash command \ 
+R is expecting a tab delimited file. If your file is delimited by spaces you can fix it with the following bash command
+
 `sed -i 's/ /\t/g'  sample_data.txt`
 
 
