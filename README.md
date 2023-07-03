@@ -123,3 +123,22 @@ If you are working with Exome or Genome data, you will also need:\
 - *Samples and variants with missingness over the desired threshold will be removed*
 
 All of these steps are extensively described in [redlat_qc.rmd](redlat_qc.rmd) 
+
+## Version History
+
+* 0.1
+    * Initial Release
+
+## Acknowledgments
+
+This pipeline integrated multiple workflows for quality control. 
+Some of our resources were:
+
+* Broad Institute gnomAD 
+   [gnomAD v3.1](https://gnomad.broadinstitute.org/news/2020-10-gnomad-v3-1-new-content-methods-annotations-and-data-availability/#sample-and-variant-quality-control/)
+  
+   [gnomAD v3.0](https://gnomad.broadinstitute.org/news/2019-10-gnomad-v3-0/)
+
+* Anderson, C. A., Pettersson, F. H., Clarke, G. M., Cardon, L. R., Morris, A. P., & Zondervan, K. T. (2010). Data quality control in genetic case-control association studies. Nature protocols, 5(9), 1564-1573.
+
+* Panoutsopoulou, K., & Walter, K. (2018). Quality control of common and rare variants. Chapter in: Genetic Epidemiology: Methods and Protocols, Methods in Molecular Biology, vol. 1793, (https://doi.org/10.1007/978-1-4939-7868-7_3), Springer Science Business Media, LLC, part of Springer Nature 2018
