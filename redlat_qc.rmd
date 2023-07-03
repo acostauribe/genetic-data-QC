@@ -1,7 +1,7 @@
 ---
-title: "Quality control pipeline"
-author: "Juliana Acosta-Uribe"
-date: '2023-06-28'
+title: "Your title"
+author: "Your name"
+date: ' date'
 output:
   html_document:
     keep_md: yes
