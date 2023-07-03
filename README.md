@@ -124,12 +124,13 @@ If you are working with Exome or Genome data, you will also need:\
 
 All of these steps are extensively described in [redlat_qc.rmd](redlat_qc.rmd) 
 
-## Version History
+
+### Version History
 
 * 0.1
     * Initial Release
 
-## Acknowledgments
+### Acknowledgments
 
 This pipeline integrated multiple workflows for quality control. 
 Some of our resources were:
