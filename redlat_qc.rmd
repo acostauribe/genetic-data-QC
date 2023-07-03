@@ -161,6 +161,7 @@ After setting up your environment and customizing your pipeline, run this chunk 
 Sys.setenv(prefix=prefix)
 Sys.setenv(data_type=data_type)
 Sys.setenv(genome_alignment=genome_alignment)
+Sys.setenv(genotype_filter=genotype_filter)
 Sys.setenv(DP=DP)
 Sys.setenv(GQ=GQ)
 Sys.setenv(vqsr_PASS=vqsr_PASS)
