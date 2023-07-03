@@ -5,7 +5,7 @@ The [redlat_qc.rmd](redlat_qc.rmd) pipeline is designed to be run as an [R markd
 
 ### Usage
 
-Download the [redlat_qc.rmd](redlat_qc.rmd) file to your local [RStudio](https://posit.co/download/rstudio-desktop/) and modify steps *1. Set up your environment* and *2. Customize the quality control process* to fit your quality control goals. (More information below)
+Download the [redlat_qc.rmd](redlat_qc.rmd) file to your local [RStudio](https://posit.co/download/rstudio-desktop/) and modify steps *1. Set up your environment* and *2. Customize the quality control process* to fit your quality control goals. The rest of the code does not require modifications. (More information below)
 
 You could also edit [redlat_qc.rmd](redlat_qc.rmd) and run it directly from the r command line if you already have the `sample_data.txt` and the `problematic_relatedness.txt` files in your workspace. 
 ```
