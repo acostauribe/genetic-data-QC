@@ -140,6 +140,6 @@ Some of our resources were:
   
    [gnomAD v3.0](https://gnomad.broadinstitute.org/news/2019-10-gnomad-v3-0/)
 
-* Anderson, C. A., Pettersson, F. H., Clarke, G. M., Cardon, L. R., Morris, A. P., & Zondervan, K. T. (2010). Data quality control in genetic case-control association studies. Nature protocols, 5(9), 1564-1573.
+* [Anderson, C. A.](https://doi.org/10.1038/nprot.2010.116), Pettersson, F. H., Clarke, G. M., Cardon, L. R., Morris, A. P., & Zondervan, K. T. (2010). Data quality control in genetic case-control association studies. Nature protocols, 5(9), 1564-1573.
 
-* Panoutsopoulou, K., & Walter, K. (2018). Quality control of common and rare variants. Chapter in: Genetic Epidemiology: Methods and Protocols, Methods in Molecular Biology, vol. 1793, (https://doi.org/10.1007/978-1-4939-7868-7_3), Springer Science Business Media, LLC, part of Springer Nature 2018
+* [Panoutsopoulou, K.](https://doi.org/10.1007/978-1-4939-7868-7_3), & Walter, K. (2018). Quality control of common and rare variants. Chapter in: Genetic Epidemiology: Methods and Protocols, Methods in Molecular Biology, vol. 1793, Springer Science Business Media, LLC, part of Springer Nature 2018
