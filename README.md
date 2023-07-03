@@ -1,4 +1,4 @@
-# Quality control pipeline for the ReD-Lat genomic data
+# Quality control pipeline for genomic data
 #### Developed by Juliana Acosta-Uribe for the ReD-Lat Consortium 2023
 
 The [redlat_qc.rmd](redlat_qc.rmd) pipeline is designed to be run as an [R markdown](https://rmarkdown.rstudio.com/lesson-1.html) file in [RStudio](https://posit.co/download/rstudio-desktop/). This way you can run it in a step-by-step mode and generate a rendered quality control report. 
