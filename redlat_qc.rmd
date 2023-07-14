@@ -489,10 +489,10 @@ Tidy up
 if [ $tidy_up == 'TRUE' ]
 then
   mkdir Missingness_stats
-  mv ${prefix}.mind.* ./Missingness_stats
   
   if [ $data_type == 'GENOME' ] || [ $data_type == 'EXOME' ]
   then
+  mv ${prefix}.mind.* ./Missingness_stats
   mv ${prefix}.vcf.gz ./File_evolution
   else
   mv ${prefix}.bed ./File_evolution
