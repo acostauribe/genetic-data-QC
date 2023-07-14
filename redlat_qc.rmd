@@ -289,7 +289,7 @@ Summarize your sample metrics
 if (data_type == 'ARRAY'){
   sample_metrics = subset(imiss, select = c(IID, F_MISS, N_GENO))
   sample_metrics = rename(sample_metrics, initital_missingness = F_MISS, Initial_n_sites = N_GENO)
-} else if (file.exists(idepth)){ 
+} else if (file.exists(paste0(prefix,".preqc.idepth"))){ 
   sample_metrics = rename(idepth, IID = INDV, Initial_n_sites = N_SITES, mean_initial_depth = MEAN_DEPTH)
   # Using the "match" function, we will create a new column in 'sample_metrics' with the missingness per sample.
   # imiss and idepth should have the same samples in the same order, but using the "match" function will be useful when   we start dropping samples
