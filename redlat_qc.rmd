@@ -122,7 +122,7 @@ genome_alignment='hg38'
 ## This command expects the file to be named "sample_data.txt". If your file has a different name, change it in the line below. 
 if (file.exists("sample_data.txt")) {
     sample_data = read.delim("sample_data.txt", header = TRUE, sep = '\t')
-    print("Annotating .fam with provided sample_data.txt")
+    print(".fam will be annotated with: sample_data.txt")
   } else { 
     print("No sample data was provided, assuming '.fam' already annotated") 
 }
