@@ -432,10 +432,13 @@ fi
 Organize files
 
 ```{bash organize-files-2}
-if [ $data_type == 'EXOME' ] || [ $data_type == 'GENOME' ] && [$genotype_filter == 'TRUE']
+if [ $tidy_up == 'TRUE' ]
 then
   mkdir File_evolution
-  mv ${prefix}.vcf.gz ./File_evolution
+  if [ $data_type == 'EXOME' ] || [ $data_type == 'GENOME' ] && [$genotype_filter == 'TRUE']
+  then
+    mv ${prefix}.vcf.gz ./File_evolution
+  fi
 fi
 ```
 
