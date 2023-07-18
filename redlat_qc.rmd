@@ -402,10 +402,6 @@ if [ $tidy_up == 'TRUE' ]
 then
   mkdir Pre-QC_stats
   mv ${prefix}.preqc.* ./Pre-QC_stats
-  if [ $data_type == 'EXOME' ] || [ $data_type == 'GENOME' ] && [$genotype_filter == 'TRUE']
-  then
-  mv samples_low_mean_depth_raw.txt ./Pre-QC_stats
-  fi
 fi
 ```
 
