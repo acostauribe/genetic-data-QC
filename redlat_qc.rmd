@@ -327,8 +327,8 @@ print(lmiss_F)
 lmiss_box = boxplot(F_MISS ~ CHR,
                     data=lmiss,
                     ylab="Missingness rate",
-                    xlab="Raw dataset",
-                    cex.lab = 0.5 ,
+                    xlab="chromosome",
+                    cex.axis = 0.5 ,
                     main="Missingness rate per site preQC",
                     col="lavender")
 
