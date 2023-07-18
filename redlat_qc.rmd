@@ -486,19 +486,22 @@ Tidy up
 
 ```{bash organize-files-3}
 if [ $tidy_up == 'TRUE' ]
-then
-  mkdir Missingness_stats
-  
+then  
   if [ $data_type == 'GENOME' ] || [ $data_type == 'EXOME' ]
   then
-  mv ${prefix}.mind.* ./Missingness_stats
+      if [$genotype_filter == 'TRUE']
+      then
+      mkdir genotype_qc
+      mv ${prefix}.mind.* ./genotype_qc
+      else
+      mv ${prefix}.mind.* ./Pre-QC_stats
+      fi
   mv ${prefix}.vcf.gz ./File_evolution
   else
   mv ${prefix}.bed ./File_evolution
   mv ${prefix}.bim ./File_evolution
   mv ${prefix}.fam ./File_evolution
   fi
-  
 fi
 ```
 
