@@ -157,6 +157,7 @@ check_relatedness=TRUE
 tidy_up=TRUE
 
 # Make these values into system environment variables
+Sys.setenv(genotype_filter=genotype_filter)
 Sys.setenv(DP=DP)
 Sys.setenv(GQ=GQ)
 Sys.setenv(vqsr_PASS=vqsr_PASS)
@@ -180,7 +181,7 @@ Before starting, take some time to look at your data and calculate some basic qu
 If your starting dataset is a plink file from a snp array, you will only get missingness per sample and per site.
 
 ```{bash get-preQC-stats}
-if [ $data_type == 'EXOME'  || $data_type == 'GENOME' ]; then
+if [[ $data_type == 'EXOME'  || $data_type == 'GENOME' ]]; then
     # Data description
     bcftools stats ${prefix}.vcf.gz > ${prefix}.preqc.vchk.txt
     
@@ -283,7 +284,7 @@ Summarize your sample metrics
 if (data_type == 'ARRAY'){
   sample_metrics = subset(imiss, select = c(IID, F_MISS, N_GENO))
   sample_metrics = rename(sample_metrics, initital_missingness = F_MISS, Initial_n_sites = N_GENO)
-} else if (file.exists(idepth)){ 
+} else if (file.exists("idepth")){ 
   sample_metrics = rename(idepth, IID = INDV, Initial_n_sites = N_SITES, mean_initial_depth = MEAN_DEPTH)
   # Using the "match" function, we will create a new column in 'sample_metrics' with the missingness per sample.
   # imiss and idepth should have the same samples in the same order, but using the "match" function will be useful when   we start dropping samples
