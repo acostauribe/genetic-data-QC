@@ -404,17 +404,22 @@ fi
 This step is only possible to do when data is in a VCF file that has been properly annotated with genotype depth (DP) and genotype quality (GQ). Notice that no sites will be eliminated, as this only affects individual calls. For example if an individuals genotype for a given variant is below desired thresholds, its turned into a missing value in that individual.
 
 ```{bash genotype-qc}
-if [[ $data_type == 'EXOME' || $data_type == 'GENOME' ]] && [[ $genotype_filter == 'TRUE' ]]; then
-  if [ $vqsr_PASS == 'TRUE']; then
-  $vcftools --gzvcf ${prefix}.vcf.gz --minDP $DP --minGQ $GQ --remove-filtered-all --recode --recode-INFO-all --out ${prefix}.DP$DP.GQ$GQ
+if [[ $data_type == 'EXOME'  || $data_type == 'GENOME' ]]; then
+  if [[ $genotype_filter == 'TRUE' ]]; then
+    if [[ $vqsr_PASS == 'TRUE' ]]; then
+    $vcftools --gzvcf ${prefix}.vcf.gz --minDP $DP --minGQ $GQ --remove-filtered-all --recode --recode-INFO-all --out ${prefix}.DP$DP.GQ$GQ
+    else
+    $vcftools --gzvcf ${prefix}.vcf.gz --minDP $DP --minGQ $GQ --recode --recode-INFO-all --out ${prefix}.DP$DP.GQ$GQ
+    fi
+  mv ${prefix}.DP$DP.GQ$GQ.recode.vcf  ${prefix}.DP$DP.GQ$GQ.vcf
+  bgzip ${prefix}.DP$DP.GQ$GQ.vcf
   else
-  $vcftools --gzvcf ${prefix}.vcf.gz --minDP $DP --minGQ $GQ --recode --recode-INFO-all --out ${prefix}.DP$DP.GQ$GQ
+  echo "genotype_filter was set to FALSE, this step is skipped"
   fi
-mv ${prefix}.DP$DP.GQ$GQ.recode.vcf  ${prefix}.DP$DP.GQ$GQ.vcf
-bgzip ${prefix}.DP$DP.GQ$GQ.vcf
 else
-echo "No genotype quality control was performed"
+echo "Plink data cannot be checked for depth or genotype quality"
 fi
+```
 ```
 
 **Note**: VCFtools output can be compressed directly into a .gz file by adding `–stdout | gzip -c > newname.gz`, but it wont generate a .log file, which are useful for debugging.
