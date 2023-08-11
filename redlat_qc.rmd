@@ -22,7 +22,8 @@ For this pipeline you will need the following:
 
 A plink formatted .*bed*, .*fam*, .*bim* set, or a bgzipped *.vcf.gz* file.
 
-**Always Take a look at your files before beginning:** \
+**Always Take a look at your files before beginning:** 
+
 If you start with a plink dataset: \ 
 - Do the Individual IDs (column 2 in *.fam*) match what you were expecting? \ 
 - Have the families been given a Family ID (column 1 in *.fam*)? \ 
@@ -30,7 +31,9 @@ If you start with a plink dataset: \
 - Do the variants in the *.bim* have an identifier (column 2 in *.bim*)? Some analyses will require this information, and we may have to incorporate it to the *.fam*/*.bim* if its not already there. \
 Make sure your files are properly aligned and the alleles are being called from the correct strand. INDELs should be [left aligned and normalized](https://samtools.github.io/bcftools/bcftools.html#norm).
 
-If you are starting with a *.vcf*, or your *.fam* does not have the sex /family of the samples already specified please provide an additional file `sample_data.txt` with a header as follows:
+**Sample Data File** 
+
+If you are starting with a *.vcf*, or your *.fam* does not have the sex /family of the samples already specified please provide an additional file with a header as follows:
 
 **IID** ID of the sample as it is in the plink IID or in the VCF\
 **SEX** should be specified (1=male, 2=female, 0=no data)\
@@ -90,12 +93,12 @@ install.packages("knitr")
 library(knitr)
 
 # Set your working directory:
-knitr::opts_chunk$set(root.dir = "~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/Exome_Seq/Joint_call_fixed/",
+knitr::opts_chunk$set(root.dir = "~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/array/quality_control/",
                       dev = "png",
                       dpi = 300,
                       echo = FALSE,
                       cache = TRUE)
-setwd("~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/Exome_Seq/Joint_call_fixed/")
+setwd("~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/array/quality_control/")
 
 
 # Set up path to software:
@@ -105,12 +108,12 @@ Sys.setenv(vcftools='/usr/bin/vcftools')
 Sys.setenv(bcftools='/usr/bin/bcftools')
 
 # Give the name of your starting file without the .bed or .vcf.gz extension
-prefix="redlat_exome"
+prefix="2023.05.01-SA-Batch4.redlat.id.no-dup"
 Sys.setenv(prefix=prefix)
 
 # Define the type of data you will be working with. 
 # Answers can be "GENOME", "EXOME", "ARRAY"
-data_type="EXOME"
+data_type="ARRAY"
 Sys.setenv(data_type=data_type)
 
 # Specify your reference genome
@@ -118,13 +121,17 @@ Sys.setenv(data_type=data_type)
 genome_alignment="hg38"
 Sys.setenv(genome_alignment=genome_alignment)
 
-# Import-sample-data}
-if (file.exists("sample_data.txt")) {
-    sample_data = read.delim("sample_data.txt", header = TRUE, sep = '\t')
-    print(".fam file will be annotated with: sample_data.txt")
+# Import the text file that contains the information for your samples. 
+# Look at Sample Data File specifications in the introduction. File needs to be tab delimited, with a header
+sample_data_file="redlat_sample_data.txt"
+
+if (file.exists(sample_data_file)) {
+    sample_data = read.delim(sample_data_file, header = TRUE, sep = '\t')
+    print(paste(".fam file will be annotated with:", sample_data_file))
   } else { 
     print("No sample data was provided, assuming .fam file is already annotated") 
-}
+  }
+Sys.setenv(sample_data_file=sample_data_file)
 ```
 
 ## 2. Customize the quality control process {#section-2}
@@ -135,7 +142,7 @@ Choose what you want to do in the analysis:
 # Do you want to do filter variant calls for genotype depth (DP) and Genotype Quality (GQ)? 
 ## This can only be done if you start with a VCF file and requires that the "DP and 'GQ' FORMAT tag is included for each genotype.
 ## TRUE Includes only sites with DP/GQ (over all included individuals) greater than or equal to the given value 
-genotype_filter=TRUE
+genotype_filter=FALSE
 # Define the values you want to use as threshold
 DP=10
 GQ=20
@@ -147,11 +154,11 @@ vqsr_PASS=FALSE
 # Do you want to check for known and cryptic relatedness among samples?
 ## For this analyses you will need to provide information of known families as described before.
 ## TRUE uses KING to perform relatedness check.
-check_relatedness=FALSE
+check_relatedness=TRUE
 
 # Do you want to create directories and to organize your data as you go?
 ## TRUE generates directories and organizes your files as you run the pipeline
-tidy_up=TRUE
+tidy_up=FALSE
 
 # Make these values into system environment variables
 Sys.setenv(genotype_filter=genotype_filter)
@@ -175,7 +182,6 @@ Before starting, take some time to look at your data and calculate some basic qu
 2. Mean depth per site (.ldepth.mean)\
 3. VQSR quality [vqsr](https://gatk.broadinstitute.org/hc/en-us/articles/360035531612-Variant-Quality-Score-Recalibration-VQSR-)
 
-If your starting dataset is a plink file from a snp array, you will only get missingness per sample and per site.
 
 ```{bash get-preQC-stats}
 if [[ "$data_type" == "EXOME" || "$data_type" == "GENOME" ]]; then
@@ -214,12 +220,38 @@ if [[ "$data_type" == "EXOME" || "$data_type" == "GENOME" ]]; then
     vcftools --gzvcf ${prefix}.vcf.gz --FILTER-summary --out ${prefix}.preqc
     # Gives the information on the number of variants that passed VQSR filtering, or are in specific tranches
     # The output file has the suffix ".FILTER.summary"
-else
-    # Use plink for Site and individual missingness in SNP Array. 
-    $plink --bfile ${prefix} --missing --out ${prefix}.preqc
-    # It will produce .lmiss and .imiss files
 fi
 ```
+
+If your starting dataset is a plink file from a snp array, you will first have to edit the .fam with the samples sex and the only statistics you get are missingness per sample and per site. \
+If you dont add sex to the fam before calculating missingness, plink wont calculate missingness values for Y chromosome. 
+
+```{r edit-fam}
+# Load your .fam file
+fam = read.delim(paste0(prefix,".fam"),
+                 sep=' ',
+                 header=FALSE)
+
+# If your .fam doesn't have the sex already specified, it will add the SEX from sample_data
+if(sum(fam$V5) == 0) {
+  fam$V5 = sample_data$SEX[match(fam$V2, sample_data$IID, nomatch = 0)]
+  write.table(fam,
+              paste0(prefix,".fam"), 
+              col.names = FALSE, 
+              row.names = FALSE, 
+              quote = FALSE)
+}
+```
+
+Then, use plink for Site and individual missingness in SNP Array. \
+It will produce .lmiss and .imiss files      
+```{bash get-preQC-stats}
+if [[ "$data_type" == "ARRAY" ]]; then
+  $plink --bfile ${prefix} --missing --out ${prefix}.preqc
+  rm *.hh
+fi
+```
+
 
 You can then proceed to get some plots and statistics from your initial files.
 
@@ -333,7 +365,7 @@ lmiss$CHR = factor(lmiss$CHR , levels=sorted_chr)
 lmiss_box = boxplot(F_MISS ~ CHR,
                     data=lmiss,
                     ylab="Missingness rate",
-                    xlab="chromosome",
+                    xlab="Chromosome",
                     cex.axis = 0.5 ,
                     main="Missingness rate per site preQC",
                     col="cyan3")
@@ -475,8 +507,9 @@ if [[ "$data_type" == "EXOME" || "$data_type" == "GENOME" ]]; then
   bgzip ${prefix}.miss.vcf
   
 else 
-  # Remove variants and samples missing more than 10% of data
-  $plink --bfile ${prefix} --geno 0.1 --mind 0.1 --make-bed --out ${prefix}.miss
+  # Remove samples missing more than 10% of data
+  $plink --bfile ${prefix} --mind 0.1 --make-bed --out ${prefix}.miss
+  rm *.hh
 fi
 ```
 
@@ -503,14 +536,14 @@ if [ "$tidy_up" == "TRUE" ]; then
       mv ${prefix}.mind.* ./Pre-QC_stats
     fi
     mv ${prefix}.vcf.gz ./File_evolution
+  else
+    mv ${prefix}.bed ./File_evolution
+    mv ${prefix}.bim ./File_evolution
+    mv ${prefix}.fam ./File_evolution
+    mv ${prefix}.log ./File_evolution
+    mv ${prefix}.miss.irem ./File_evolution
+    rm *.nosex
   fi
-else
-  mv ${prefix}.bed ./File_evolution
-  mv ${prefix}.bim ./File_evolution
-  mv ${prefix}.fam ./File_evolution
-  mv ${prefix}.log ./File_evolution
-  mv ${prefix}.miss.irem ./File_evolution
-  rm *.nosex
 fi
 ```
 
@@ -670,10 +703,6 @@ if(sum(fam$V5) == 0) {
               row.names = FALSE, 
               quote = FALSE)
 }
-
-missing_data = setdiff(fam$V2, sample_data$IID)
-fam_IID = fam[,2]
-sample_IID = sample_data$IID
 ```
 
 B. Split Pseudo-Autosomic region (PAR) of X
@@ -716,6 +745,7 @@ fi
 Plot sex in X chromosome
 
 ```{r plot-sex-X}
+
 if (!require("ggbeeswarm", quietly = TRUE))
 install.packages("ggbeeswarm")
 library(ggbeeswarm)
@@ -761,7 +791,7 @@ if (any(fam$V5 %in% "0")) {
 ```{bash check-sex-Y}
 if [[ $(awk '$1 == "24" { count++ } END { print count }' ${prefix}.split-x.bim) != "" ]]; then
   if [ $(awk -F' ' '{sum+=$5;}END{print sum;}' ${prefix}.split-x.fam) != "0" ]; then
-    $plink --bfile ${prefix}.split-x --check-sex y-only --out ${prefix}.split-x.chrY
+    $plink --bfile ${prefix}.split-x --check-sex y-only 2500 4000 --out ${prefix}.split-x.chrY
   else
     echo "Please edit the .fam with the sex of the samples"
   fi
@@ -769,6 +799,10 @@ else
   echo "Dataset does not contain Y chromosome. Y chromosome sex check was skipped"
 fi
 ```
+
+You can modify the detection thresholds after doing an itital check on the distribution of male vs female Y counts
+``--check-sex y-only [female max Y obs] [male min Y obs]``
+
 
 Plot sex in Y chromosome
 
