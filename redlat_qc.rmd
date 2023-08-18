@@ -158,7 +158,7 @@ check_relatedness=TRUE
 
 # Do you want to create directories and to organize your data as you go?
 ## TRUE generates directories and organizes your files as you run the pipeline
-tidy_up=FALSE
+tidy_up=TRUE
 
 # Make these values into system environment variables
 Sys.setenv(genotype_filter=genotype_filter)
@@ -421,22 +421,22 @@ Summarize statistical measures
 
 ```{r generate-statistical-measures}
 if(data_type=="EXOME" || data_type=="GENOME"){
-statistical_measures = bind_rows(imiss_F,
+dataset_statistics = bind_rows(imiss_F,
                                  idepth_mean,
                                  lmiss_F,
                                  ldepth_mean)
 } else {
-  statistical_measures = bind_rows(imiss_F,
+  dataset_statistics = bind_rows(imiss_F,
                                   lmiss_F)
 }
 
-write.table(statistical_measures,
-            "statistical_measures.txt", 
+write.table(dataset_statistics,
+            "dataset_statistics.txt", 
             col.names = TRUE, 
             row.names = TRUE, 
             quote = FALSE)
 
-print(statistical_measures)
+print(dataset_statistics)
 ```
 
 Organize all the generated files
@@ -542,7 +542,6 @@ if [ "$tidy_up" == "TRUE" ]; then
     mv ${prefix}.fam ./File_evolution
     mv ${prefix}.log ./File_evolution
     mv ${prefix}.miss.irem ./File_evolution
-    rm *.nosex
   fi
 fi
 ```
@@ -651,7 +650,7 @@ plot(miss_imiss$F_MISS, het$F,
 abline(h = (heterozygosity_low_limit), col="red")
 abline(h = (heterozygosity_high_limit), col="red")
 abline(h = (mean(het$F)), col="blue") 
-legend("bottomright",
+legend("bottomleft",
        legend = c("+/-3 SD", "mean"),
        col = c("red", "blue"),
        pch = 1)
@@ -668,16 +667,16 @@ write.table(sample_metrics,
             quote = FALSE)
 
 # Update your statistical_measure dataframe
-statistical_measures = bind_rows(statistical_measures,
+dataset_statistics = bind_rows(dataset_statistics,
                                   heterozygosity_sample)
 # Save as a file
-write.table(statistical_measures,
-            "statistical_measures.txt", 
+write.table(dataset_statistics,
+            "dataset_statistics.txt", 
             col.names = TRUE, 
             row.names = TRUE, 
             quote = FALSE)
 
-print(statistical_measures)
+print(dataset_statistics)
 ```
 
 ## 7. Check sex {#section-7}
@@ -702,7 +701,7 @@ if(sum(fam$V5) == 0) {
               col.names = FALSE, 
               row.names = FALSE, 
               quote = FALSE)
-}
+} else {print("fam already contains sex values") }
 ```
 
 B. Split Pseudo-Autosomic region (PAR) of X
@@ -733,7 +732,7 @@ if [ $(awk -F' ' '{sum+=$5;} END {print sum;}' ${prefix}.split-x.fam) != '0' ]; 
   $plink --bfile ${prefix}.split-x --extract plink.prune.in --make-bed --out ${prefix}.split-x.LD
   
   # Calculate heterozygosity F statistic of X chromosome
-  $plink --bfile ${prefix}.split-x.LD  --check-sex 0.3 0.7 --out ${prefix}.split-x.chrX
+  $plink --bfile ${prefix}.split-x.LD  --check-sex 0.35 0.7  --out ${prefix}.split-x.chrX
   
   rm plink.*
   rm ${prefix}.split-x.LD.*
@@ -992,10 +991,14 @@ if [ "$tidy_up" == "TRUE" ]; then
   mv ${prefix}.split-x.bim ./File_evolution
   mv ${prefix}.split-x.fam ./File_evolution 
   mv ${prefix}.split-x.log ./File_evolution
-  mv ${prefix}.bed ./File_evolution
-  mv ${prefix}.bim ./File_evolution
-  mv ${prefix}.fam ./File_evolution 
-  mv ${prefix}.log ./File_evolution
+  
+  if [ -f ${prefix}.bed ]; then
+    mv ${prefix}.bed ./File_evolution
+    mv ${prefix}.bim ./File_evolution
+    mv ${prefix}.fam ./File_evolution 
+    mv ${prefix}.log ./File_evolution
+  fi
+  
   mv het_sex_dup.irem ./File_evolution
   
   if [ -f ${prefix}.vcf.gz ]; then
@@ -1070,6 +1073,9 @@ if(check_relatedness=="TRUE"){
               col.names = FALSE, 
               row.names = FALSE, 
               quote = FALSE)
+  
+  print(paste(".fam file will be annotated with:", sample_data_file))
+  
 } else {
   print("check_relatedness is set to FALSE. No kinship check will be performed")
 }
@@ -1079,7 +1085,7 @@ After editing the *.fam* you can proceed to check relatedness:
 
 ```{bash id-relatedness}
 if [ "$check_relatedness" == "TRUE" ]; then
-  $king -b ${prefix}.bed --related --rplot --degree 4 --cluster --prefix ${prefix}.king
+  $king -b ${prefix}.bed --related --rplot --degree 3 --cluster --prefix ${prefix}.king
 else
   echo "check_relatedness is set to FALSE. No kinship check will be performed"
 fi
@@ -1100,11 +1106,11 @@ if you get `FATAL ERROR - Please correct problems with pedigree structure` it us
 # If you have provided a problematic_relatedness.txt file, it will remove the listed individuals.
 if [ -f "problematic_relatedness.txt" ]; then
   if [ "$data_type" == "GENOME" ] || [ "$data_type" == "EXOME" ]; then
-    vcftools --gzvcf ${prefix}.vcf.gz --remove problematic_relatedness.txt --recode --recode-INFO-all --out ${prefix}.rel
+    $vcftools --gzvcf ${prefix}.vcf.gz --remove problematic_relatedness.txt --recode --recode-INFO-all --out ${prefix}.rel
     mv  ${prefix}.rel.recode.vcf ${prefix}.rel
     bgzip ${prefix}.rel.vcf
   else
-    plink --bfile ${prefix} --remove problematic_relatedness.txt --make-bed --out ${prefix}.rel
+    $plink --bfile ${prefix} --remove problematic_relatedness.txt --make-bed --out ${prefix}.rel
   fi
 else
   echo "No 'problematic_relatedness.txt' file. No sample will be removed."
@@ -1373,23 +1379,23 @@ Update your statistical_measure dataframe
 
 ```{r update-statistical-measures}
 
-statistical_measures = bind_rows(statistical_measures,
+dataset_statistics = bind_rows(dataset_statistics,
                                  imiss_final_F,
                                  lmiss_final_F)
 
 if(data_type=="EXOME" || data_type=="GENOME"){
-  statistical_measures = bind_rows(statistical_measures,
+  dataset_statistics = bind_rows(dataset_statistics,
                                  idepth_final_mean,
                                  ldepth_final_mean)
 }
 # Save as a file (optional)
-write.table(statistical_measures,
-            "statistical_measures.txt", 
+write.table(dataset_statistics,
+            "dataset_statistics.txt", 
             col.names = TRUE, 
             row.names = TRUE, 
             quote = FALSE)
 
-print(statistical_measures)
+print(dataset_statistics)
 ```
 
 Organize all the generated files
