@@ -124,6 +124,7 @@ If you are working with Exome or Genome data, you will also need:\
 
 All of these steps are extensively described in [redlat_qc.rmd](redlat_qc.rmd) 
 
+![alt text](QC.png)
 
 ### Version History
 
