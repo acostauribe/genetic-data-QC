@@ -93,12 +93,12 @@ install.packages("knitr")
 library(knitr)
 
 # Set your working directory:
-knitr::opts_chunk$set(root.dir = "~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/array/quality_control/",
+knitr::opts_chunk$set(root.dir = "~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/array/quality_control/qc3",
                       dev = "png",
                       dpi = 300,
                       echo = FALSE,
                       cache = TRUE)
-setwd("~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/array/quality_control/")
+setwd("~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/array/quality_control/qc3")
 
 
 # Set up path to software:
@@ -183,7 +183,7 @@ Before starting, take some time to look at your data and calculate some basic qu
 3. VQSR quality [vqsr](https://gatk.broadinstitute.org/hc/en-us/articles/360035531612-Variant-Quality-Score-Recalibration-VQSR-)
 
 
-```{bash get-preQC-stats}
+```{bash get-preQC-stats-2}
 if [[ "$data_type" == "EXOME" || "$data_type" == "GENOME" ]]; then
     # Data description
     bcftools stats ${prefix}.vcf.gz > ${prefix}.preqc.vchk.txt
@@ -226,7 +226,7 @@ fi
 If your starting dataset is a plink file from a snp array, you will first have to edit the .fam with the samples sex and the only statistics you get are missingness per sample and per site. \
 If you dont add sex to the fam before calculating missingness, plink wont calculate missingness values for Y chromosome. 
 
-```{r edit-fam}
+```{r edit-fam-1}
 # Load your .fam file
 fam = read.delim(paste0(prefix,".fam"),
                  sep=' ',
@@ -245,7 +245,7 @@ if(sum(fam$V5) == 0) {
 
 Then, use plink for Site and individual missingness in SNP Array. \
 It will produce .lmiss and .imiss files      
-```{bash get-preQC-stats}
+```{bash get-preQC-stats-1}
 if [[ "$data_type" == "ARRAY" ]]; then
   $plink --bfile ${prefix} --missing --out ${prefix}.preqc
   rm *.hh
@@ -687,7 +687,7 @@ A. Verify that *prefix.fam* has a 'sex' value on the 5 column.
 
 If the values are 0 or -9, you can assign 'sex value' in plink with the --update-sex command. You can also use R to edit the .fam by running the following chunk
 
-```{r edit-fam}
+```{r edit-fam-2}
 # Load your dataframes
 fam = read.delim(paste0(prefix,".fam"),
                  sep=' ',
@@ -1045,7 +1045,7 @@ If the *.fam.* file does not have a Family Identifier per genome (FID), you need
 
 You can also use R to edit the *.fam* by running the following chunk
 
-```{r edit-fam-2}
+```{r edit-fam-3mmmm}
 if(check_relatedness=="TRUE"){
   # Load your dataframes
   fam = read.delim(paste0(prefix,".fam"),
