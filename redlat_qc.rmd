@@ -559,7 +559,7 @@ This is a recommended step when you are analyzing cohorts with either SNP array 
 
 We prefer plink to calculate sample heterozygosity. Plink uses a *sliding window* approach to identify variants in linkage disequilibrium. There are many options to modify the behavior or this approach in [plink's docummentation](https://www.cog-genomics.org/plink/1.9/ld#indep). The LD pruning requires that the *.bim* file has variant IDs in the second column. If no variants have been assigned, you could do a preliminary step using [--set-missing-var-ids](https://www.cog-genomics.org/plink/1.9/data#set_missing_var_ids).
 
-```{bash calculate-heterozygosity}
+```{bash calculate-heterozygosity, echo=FALSE}
 # If you have a vcf file, import it into plink 
 if [ "$data_type" == "GENOME" ] || [ "$data_type" == "EXOME" ]; then
   $plink --vcf ${prefix}.vcf.gz --keep-allele-order --double-id --vcf-half-call h --set-missing-var-ids @:#$1,$2 --make-bed --out ${prefix}
@@ -730,7 +730,7 @@ fi
 
 **Check sex in X chromosome**
 
-```{bash check-sex-X}
+```{bash check-sex-X, echo=FALSE}
 if [ $(awk -F' ' '{sum+=$5;} END {print sum;}' ${prefix}.split-x.fam) != '0' ]; then
   # Retain X chromosome and calculate r2 between the variants in a given window
   # This step requires that the .bim file has variant IDs in the second column
@@ -992,26 +992,29 @@ fi
 
 ```{bash organize-files-4}
 if [ "$tidy_up" == "TRUE" ]; then
-  mkdir Duplicate_analysis
-  mv ${prefix}.king* ./Duplicate_analysis
+  mkdir Heterozygosity_stats
+  mv *.het ./Heterozygosity_stats
+  mv *.het.log ./Heterozygosity_stats
+  #mv heterozygosity_outliers.txt ./Heterozygosity_stats
   
   mkdir Sex_check
   mv ${prefix}.split-x.chrX.* ./Sex_check
   if [ -f ${prefix}.split-x.chrY.sexcheck ]; then
     mv ${prefix}.split-x.chrY.* ./Sex_check
   fi
-  rm *.nosex
+  #mv sex_fail_samples.txt ./Sex_check
   rm *.hh
   
-  mkdir Heterozygosity_stats
-  mv *.het ./Heterozygosity_stats
-  mv *.het.log ./Heterozygosity_stats
-  mv heterozygosity_outliers.txt ./Heterozygosity_stats
+  mkdir Duplicate_analysis
+  mv ${prefix}.king* ./Duplicate_analysis
+  #mv duplicated_samples.txt ./Duplicate_analysis
   
   mv ${prefix}.split-x.bed ./File_evolution
   mv ${prefix}.split-x.bim ./File_evolution
   mv ${prefix}.split-x.fam ./File_evolution 
-  mv ${prefix}.split-x.log ./File_evolution
+  if [ -f ${prefix}.split-x.log ]; then
+   mv ${prefix}.split-x.log ./File_evolution
+  fi
   
   if [ -f ${prefix}.bed ]; then
     mv ${prefix}.bed ./File_evolution
