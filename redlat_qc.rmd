@@ -604,11 +604,11 @@ print(heterozygosity_sample)
 # Calculate limits for excluding samples [3 standard deviations]
 ## Low threshold
 heterozygosity_low_limit = mean(het$F)-(3*(sd(het$F)))
-print(paste("Mean heterozygosity -3 Standard Deviations =", heterozygosity_low_limit))
+print(paste("Mean heterozygosity F value -3 Standard Deviations =", heterozygosity_low_limit))
 
 ## High threshold
 heterozygosity_high_limit = mean(het$F)+(3*(sd(het$F)))
-print(paste("Mean heterozygosity +3 Standard Deviations =", heterozygosity_high_limit))
+print(paste("Mean heterozygosity F value +3 Standard Deviations =", heterozygosity_high_limit))
 
 # Individuals whose heterozygosity deviated more than 3 SD from the mean should be identified
 het_outlier_low = filter(het, F<heterozygosity_low_limit)
@@ -1173,7 +1173,7 @@ If you know you have trios, parent-offspring duos or multigenerational families 
 
 For plink formatted data we can use:
 
-```{bash mendel-errors}
+```{bash mendel-errors, eval=FALSE, include=FALSE}
 if [ "$data_type" == "ARRAY" ]; then
   $plink --bfile ${prefix} --set-me-missing --mendel-duos --make-bed --out ${prefix}.me
 fi
