@@ -389,6 +389,7 @@ if(data_type=="EXOME" || data_type=="GENOME"){
                        data=ldepth,
                        xlab="Mean Depth",
                        ylab="Sites",
+                       cex.axis = 0.5 ,
                        main="Mean Depth per site preQC",
                        col="cyan3")
 }
