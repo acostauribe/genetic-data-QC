@@ -1003,8 +1003,13 @@ if [ "$tidy_up" == "TRUE" ]; then
   if [ -f ${prefix}.split-x.chrY.sexcheck ]; then
     mv ${prefix}.split-x.chrY.* ./Sex_check
   fi
+
   #mv sex_fail_samples.txt ./Sex_check
   rm *.hh
+
+  if [[ "$data_type" == "GENOME" || "$data_type" == "EXOME" ]]; then
+    rm *.nosex
+  fi
   
   mkdir Duplicate_analysis
   mv ${prefix}.king* ./Duplicate_analysis
