@@ -93,12 +93,12 @@ install.packages("knitr")
 library(knitr)
 
 # Set your working directory:
-knitr::opts_chunk$set(root.dir = "~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/array/quality_control/qc3",
+knitr::opts_chunk$set(root.dir = "~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/Exome_Seq/Joint_call_fixed",
                       dev = "png",
                       dpi = 300,
                       echo = FALSE,
                       cache = TRUE)
-setwd("~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/array/quality_control/qc3")
+setwd("~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/Exome_Seq/Joint_call_fixed")
 
 
 # Set up path to software:
@@ -108,12 +108,12 @@ Sys.setenv(vcftools='/usr/bin/vcftools')
 Sys.setenv(bcftools='/usr/bin/bcftools')
 
 # Give the name of your starting file without the .bed or .vcf.gz extension
-prefix="2023.05.01-SA-Batch4.redlat.id.no-dup"
+prefix="redlat_exome"
 Sys.setenv(prefix=prefix)
 
 # Define the type of data you will be working with. 
 # Answers can be "GENOME", "EXOME", "ARRAY"
-data_type="ARRAY"
+data_type="EXOME"
 Sys.setenv(data_type=data_type)
 
 # Specify your reference genome
@@ -123,7 +123,7 @@ Sys.setenv(genome_alignment=genome_alignment)
 
 # Import the text file that contains the information for your samples. 
 # Look at Sample Data File specifications in the introduction. File needs to be tab delimited, with a header
-sample_data_file="redlat_sample_data.txt"
+sample_data_file="exome_sample_data.txt"
 
 if (file.exists(sample_data_file)) {
     sample_data = read.delim(sample_data_file, header = TRUE, sep = '\t')
@@ -142,7 +142,7 @@ Choose what you want to do in the analysis:
 # Do you want to do filter variant calls for genotype depth (DP) and Genotype Quality (GQ)? 
 ## This can only be done if you start with a VCF file and requires that the "DP and 'GQ' FORMAT tag is included for each genotype.
 ## TRUE Includes only sites with DP/GQ (over all included individuals) greater than or equal to the given value 
-genotype_filter=FALSE
+genotype_filter=TRUE
 # Define the values you want to use as threshold
 DP=10
 GQ=20
@@ -154,7 +154,7 @@ vqsr_PASS=FALSE
 # Do you want to check for known and cryptic relatedness among samples?
 ## For this analyses you will need to provide information of known families as described before.
 ## TRUE uses KING to perform relatedness check.
-check_relatedness=TRUE
+check_relatedness=FALSE
 
 # Do you want to create directories and to organize your data as you go?
 ## TRUE generates directories and organizes your files as you run the pipeline
@@ -365,8 +365,8 @@ lmiss$CHR = factor(lmiss$CHR , levels=sorted_chr)
   
 lmiss_box = boxplot(F_MISS ~ CHR,
                     data=lmiss,
-                    ylab="Missingness rate",
                     xlab="Chromosome",
+                    ylab="Missingness rate",
                     cex.axis = 0.5 ,
                     main="Missingness rate per site preQC",
                     col="cyan3")
@@ -385,10 +385,10 @@ if(data_type=="EXOME" || data_type=="GENOME"){
   sorted_chr = unique(ldepth$CHR) #organize the chromosomes in ascending order
   ldepth$CHR = factor(ldepth$CHR , levels=sorted_chr)
   
-  ldepth_box = boxplot(MEAN_DEPTH ~ CHROM,
+  ldepth_box = boxplot(MEAN_DEPTH ~ CHR,
                        data=ldepth,
-                       xlab="Mean Depth",
-                       ylab="Sites",
+                       xlab="Chromosome",
+                       ylab="Mean Depth per site",
                        cex.axis = 0.5 ,
                        main="Mean Depth per site preQC",
                        col="cyan3")
@@ -660,7 +660,7 @@ plot(miss_imiss$F_MISS, het$F,
 abline(h = (heterozygosity_low_limit), col="red")
 abline(h = (heterozygosity_high_limit), col="red")
 abline(h = (mean(het$F)), col="blue") 
-legend("bottomleft",
+legend("bottomright",
        legend = c("+/-3 SD", "mean"),
        col = c("red", "blue"),
        pch = 1)
@@ -1003,12 +1003,11 @@ if [ "$tidy_up" == "TRUE" ]; then
   if [ -f ${prefix}.split-x.chrY.sexcheck ]; then
     mv ${prefix}.split-x.chrY.* ./Sex_check
   fi
-
   #mv sex_fail_samples.txt ./Sex_check
   rm *.hh
-
+  
   if [[ "$data_type" == "GENOME" || "$data_type" == "EXOME" ]]; then
-    rm *.nosex
+  rm *.nosex
   fi
   
   mkdir Duplicate_analysis
@@ -1097,6 +1096,7 @@ if(check_relatedness=="TRUE"){
   fam$V1 = sample_data$FID[match(fam$V2, sample_data$IID, nomatch = 0)]
   fam$V3 = sample_data$PID[match(fam$V2, sample_data$IID, nomatch = 0)]
   fam$V4 = sample_data$MID[match(fam$V2, sample_data$IID, nomatch = 0)]
+clear
 
   write.table(fam,
               paste0(prefix,".fam"), 
@@ -1209,7 +1209,9 @@ if (file.exists(paste0(prefix,".me.bed"))) {
 
 ## 10. Remove variants & Individuals and with missingness ≥5% {#section-10}
 
-After refining our data set we finally remove the variants and the individuals that are missing more than 5% of the data
+After refining our data set we finally remove the variants and the individuals that are missing more than 5% of the data. 
+
+You can change your threshold of inclusion with the ``--max-missing`` flag for vcf files [0 = all data allowed, 1 = no missing data allowed] or the ``--geno`` flag for plink files [1 = all data allowed, 0 = no missing data allowed].
 
 ```{bash final-missingness}
 if [ "$data_type" == "EXOME" ] || [ "$data_type" == "GENOME" ]; then
@@ -1219,7 +1221,7 @@ if [ "$data_type" == "EXOME" ] || [ "$data_type" == "GENOME" ]; then
   awk '{if ($5 <= 0.05) {print $1} }' ${prefix}.mind-2.imiss > ${prefix}.mind-2.ikeep
   
   # Remove variants and sites missing more than 5% of data
-  $vcftools --gzvcf ${prefix}.vcf.gz --keep ${prefix}.mind-2.ikeep --max-missing 0.95 --recode --recode-INFO-all --out ${prefix}.qc
+  $vcftools --gzvcf ${prefix}.vcf.gz --keep ${prefix}.mind-2.ikeep --max-missing 0.9 --recode --recode-INFO-all --out ${prefix}.qc
   mv ${prefix}.qc.recode.vcf ${prefix}.qc.vcf
   bgzip ${prefix}.qc.vcf
   
@@ -1370,14 +1372,15 @@ lmiss_final = read.delim(file = paste0(prefix,".post-qc.lmiss"),
 lmiss_final_F= describe(lmiss_final$F_MISS)
 rownames(lmiss_final_F) = c("final_site_missingness")
 print(lmiss_final_F)
+
 # Plot Missingness rate site per chromosome
-sorted_chr = unique(lmiss$CHR) #organize the chromosomes in ascending order
-lmiss$CHR = factor(lmiss$CHR , levels=sorted_chr)
+sorted_chr = unique(lmiss_final$CHR) #organize the chromosomes in ascending order
+lmiss_final$CHR = factor(lmiss_final$CHR , levels=sorted_chr)
   
 lmiss_box_final = boxplot(F_MISS ~ CHR,
                     data=lmiss_final,
+                    xlab="Chromosome",
                     ylab="Missingness rate",
-                    xlab="Raw dataset",
                     cex.axis = 0.5,
                     main="Missingness rate per site post-QC",
                     col="gold1")
@@ -1393,16 +1396,17 @@ if(data_type=="EXOME" || data_type=="GENOME"){
   print(ldepth_final_mean)
   # Plot depth per site
   
-  sorted_chr = unique(ldepth$CHR) #organize the chromosomes in ascending order
-  ldepth$CHR = factor(ldepth$CHR , levels=sorted_chr)
-  ldepth_box_final = boxplot(MEAN_DEPTH ~ CHROM,
-                       data=ldepth,
-                       xlab="Mean Depth",
-                       ylab="Sites",
+  sorted_chr = unique(ldepth_final$CHR) #organize the chromosomes in ascending order
+  ldepth_final$CHR = factor(ldepth_final$CHR , levels=sorted_chr)
+  ldepth_box_final = boxplot(MEAN_DEPTH ~ CHR,
+                       data=ldepth_final,
+                       xlab="Chromosome",
+                       ylab="Mean Depth per site",
                        cex.axis = 0.5,
                        main="Mean Depth per site post-QC",
                        col="gold1")
 }
+```
 
 Update your statistical_measure dataframe
 
