@@ -1380,7 +1380,7 @@ lmiss_box_final = boxplot(F_MISS ~ CHR,
                     xlab="Raw dataset",
                     cex.axis = 0.5,
                     main="Missingness rate per site post-QC",
-                    col="cyan3")
+                    col="gold1")
 
 # Depth per site - chromosome (Only for Exome or Genome data)
 if(data_type=="EXOME" || data_type=="GENOME"){
@@ -1400,10 +1400,9 @@ if(data_type=="EXOME" || data_type=="GENOME"){
                        xlab="Mean Depth",
                        ylab="Sites",
                        cex.axis = 0.5,
-                       main="Mean Depth per site preQC",
-                       col="cyan3")
+                       main="Mean Depth per site post-QC",
+                       col="gold1")
 }
-```
 
 Update your statistical_measure dataframe
 
