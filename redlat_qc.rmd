@@ -558,12 +558,17 @@ Sys.setenv(prefix=prefix)
 
 This is a recommended step when you are analyzing cohorts with either SNP array or Whole genome sequencing.
 
-We prefer plink to calculate sample heterozygosity. Plink uses a *sliding window* approach to identify variants in linkage disequilibrium. There are many options to modify the behavior or this approach in [plink's docummentation](https://www.cog-genomics.org/plink/1.9/ld#indep). The LD pruning requires that the *.bim* file has variant IDs in the second column. If no variants have been assigned, you could do a preliminary step using [--set-missing-var-ids](https://www.cog-genomics.org/plink/1.9/data#set_missing_var_ids).
+We prefer plink to calculate sample heterozygosity. Plink uses a *sliding window* approach to identify variants in linkage disequilibrium. There are many options to modify the behavior or this approach in [plink's documentation](https://www.cog-genomics.org/plink/1.9/ld#indep). The LD pruning requires that the *.bim* file has variant IDs in the second column. If no variants have been assigned, you could do a preliminary step using [--set-missing-var-ids](https://www.cog-genomics.org/plink/1.9/data#set_missing_var_ids).
 
 ```{bash calculate-heterozygosity, echo=FALSE}
-# If you have a vcf file, import it into plink 
 if [ "$data_type" == "GENOME" ] || [ "$data_type" == "EXOME" ]; then
-  $plink --vcf ${prefix}.vcf.gz --keep-allele-order --double-id --vcf-half-call h --set-missing-var-ids @:#$1,$2 --make-bed --out ${prefix}
+# Import VCF and assign IDs to SNV
+  $plink --vcf ${prefix}.vcf.gz --keep-allele-order --double-id --vcf-half-call m --set-missing-var-ids @:#[hg38]\$1,\$2 --new-id-max-allele-len 1 --make-bed --out ${prefix}
+
+# Assign IDs to indels
+mv ${prefix}.bim ${prefix}.bim-original
+awk 'BEGIN {count=1}; {if ($2 ~ /\./) {sub(/\./,"INDEL"(count++));print} else {print} }' ${prefix}.bim-original > ${prefix}.bim
+
 fi
 
 # I have this as an if statement because im still deciding if this is a good measure for exomes. 
@@ -716,7 +721,7 @@ if(sum(fam$V5) == 0) {
 
 B. Split Pseudo-Autosomic region (PAR) of X
 
-It is necessary to remove the PAR region of X for plink's sex check pipeline. This command will check if there is already a XY region in \${prefix}.bim if it doesn't find one it will split the PAR as chromosome 25. If there is already a chromosome 25, then it will append '.split-x' to ensure compatibility further on. Make sure you are using the correct genome alignment for this. e.g. ReDLat files are aligned to hg38. Set up `genome_alignment` variable accordingly You can find more information on this step in [plink docummentation](https://www.cog-genomics.org/plink/1.9/data#split_x)
+It is necessary to remove the PAR region of X for plink's sex check pipeline. This command will check if there is already a XY region in \${prefix}.bim if it doesn't find one it will split the PAR as chromosome 25. If there is already a chromosome 25, then it will append '.split-x' to ensure compatibility further on. Make sure you are using the correct genome alignment for this. e.g. ReDLat files are aligned to hg38. Set up `genome_alignment` variable accordingly You can find more information on this step in [plink documentation](https://www.cog-genomics.org/plink/1.9/data#split_x)
 
 ```{bash split-PAR}
 if [[ $(awk '$1 == "25" { count++ } END { print count }' ${prefix}.bim) == "" ]]; then
