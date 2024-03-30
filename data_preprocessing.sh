@@ -8,8 +8,8 @@ RAW_dataset='ADFTD.vqsr.snp.indel' # Name of the original file
 seq='EXOME' # Type of sequencing (GENOME, EXOME or ARRAY)
 
 # Provide additional files
-redlat_samples='redlat_samples.txt' # List of the samples to be retained from the original file. Take a look at the sample IDs in the raw file, as these may be different from the RedLat IDs
-new_ids='redlat_ids.txt' # List of the new names to be given to the samples. You need to create a file (e.g. ids.txt) where every line has two columns: 'old sample ID' 'new sample ID' 
+redlat_samples='redlat_samples.txt' # List of the samples to be retained from the original file. Take a look at the sample IDs in the raw file, as these may be different from the RedLat IDs. For array data in plink files you must give two column ID. See plink documentation 
+new_ids='redlat_ids.txt' # List of the new names to be given to the samples. You need to create a file (e.g. ids.txt) where every line has two columns: 'old sample ID' 'new sample ID'. For array data in plink files you must give a four column file. old sample FID' old sample IID' 'new sample FID''new sample IID' See plink documentation.  
 targets='xgen-exome-hyb-panel-v2-targets-hg38.bed' # If your data is an EXOME, you need to provide the assay targets. make sure the vcf dile and the bed have the chromosomes using the same style
 
 # Provide a path to your reference genome
