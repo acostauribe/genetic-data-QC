@@ -29,7 +29,7 @@ if [ $seq == 'ARRAY' ]; then
   
   # IV. Change the . in the bim files to a numerical sequence
   plink --bfile $RAW_dataset.redlat.id.ref --set-missing-var-ids @:#[hg38]\$1,\$2 --keep-allele-order --make-bed --out $RAW_dataset.redlat.id.ref.var
-  awk 'BEGIN {count=1}; {if ($2 ~ /\./) {sub(/\./,"INDEL"(count++));print} else {print} }' $RAW_dataset.redlat.id.ref.var.bim > RAW_dataset.redlat.id.ref.var.bim2
+  awk 'BEGIN {count=1}; {if ($2 ~ /\./) {sub(/\./,"INDEL"(count++));print} else {print} }' $RAW_dataset.redlat.id.ref.var.bim > $RAW_dataset.redlat.id.ref.var.bim2
   mv $RAW_dataset.redlat.id.ref.var.bim2 $RAW_dataset.redlat.id.ref.var.bim 
 
 elif [ $seq == 'EXOME' || $seq == 'GENOME' ]; then
