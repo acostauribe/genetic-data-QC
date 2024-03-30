@@ -17,18 +17,15 @@ fasta_file='/home/acostauribe/public_html/Utilities/hg38.fa.gz'
 
 
 if [ $seq == 'ARRAY' ]; then
-  # I. Extract ReDLat samples from the original file
-  plink --bfile $RAW_dataset --keep $redlat_samples --make-bed --out $RAW_dataset.redlat
-  # Note: I initially obtained basic qc metrics in the entire data and identified duplicated samples,and those are not included in $redlat_samples
-  
-  # II. Rename samples according to ReDLat sequence IDs
-  plink --bfile $RAW_dataset.redlat --update-ids $new_ids --make-bed --out $RAW_dataset.redlat.id
+  # I. Rename samples according to ReDLat sequence IDs and Extract ReDLat samples from the original file
+  plink --bfile $RAW_dataset --update-ids $new_ids --keep $redlat_samples  --make-bed --out $RAW_dataset.redlat.id
+  # Note: plink will rename first, keep second. regardelss of the command order in script
     
-  # III. Recode variants according to the reference genome using PLINK2
+  # II. Recode variants according to the reference genome using PLINK2
   plink2 --bfile $RAW_dataset.redlat.id --ref-from-fa force --fa $fasta_file --real-ref-alleles --make-bed --out $RAW_dataset.redlat.id.ref
   
-  # V. Change the . in the bim files to a numerical sequence
-  plink --bfile $RAW_dataset.redlat.idp.ref --set-missing-var-ids @:#[hg38]\$1,\$2 --keep-allele-order --out $RAW_dataset.redlat.id.ref.var
+  # III. Change the . in the bim files to a numerical sequence
+  plink --bfile $RAW_dataset.redlat.id.ref --set-missing-var-ids @:#[hg38]\$1,\$2 --keep-allele-order --make-bed --out $RAW_dataset.redlat.id.ref.var
   awk 'BEGIN {count=1}; {if ($2 ~ /\./) {sub(/\./,"INDEL"(count++));print} else {print} }' $RAW_dataset.redlat.id.ref.var.bim > RAW_dataset.redlat.id.ref.var.bim2
   mv $RAW_dataset.redlat.id.ref.var.bim2 $RAW_dataset.redlat.id.ref.var.bim 
 
