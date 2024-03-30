@@ -1078,7 +1078,7 @@ If the *.fam.* file does not have a Family Identifier per genome (FID), you need
 
 You can also use R to edit the *.fam* by running the following chunk
 
-```{r edit-fam-3mmmm}
+```{r edit-fam-3}
 if(check_relatedness=="TRUE"){
   # Load your dataframes
   fam = read.delim(paste0(prefix,".fam"),
@@ -1100,7 +1100,6 @@ if(check_relatedness=="TRUE"){
   fam$V1 = sample_data$FID[match(fam$V2, sample_data$IID, nomatch = 0)]
   fam$V3 = sample_data$PID[match(fam$V2, sample_data$IID, nomatch = 0)]
   fam$V4 = sample_data$MID[match(fam$V2, sample_data$IID, nomatch = 0)]
-clear
 
   write.table(fam,
               paste0(prefix,".fam"), 
