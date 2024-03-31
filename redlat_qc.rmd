@@ -720,16 +720,20 @@ if(sum(fam$V5) == 0) {
 
 B. Split Pseudo-Autosomic region (PAR) of X
 
-It is necessary to remove the PAR region of X for plink's sex check pipeline. This command will check if there is already a XY region in \${prefix}.bim if it doesn't find one it will split the PAR as chromosome 25. If there is already a chromosome 25, then it will append '.split-x' to ensure compatibility further on. Make sure you are using the correct genome alignment for this. e.g. ReDLat files are aligned to hg38. Set up `genome_alignment` variable accordingly You can find more information on this step in [plink documentation](https://www.cog-genomics.org/plink/1.9/data#split_x)
+It is necessary to remove the PAR region of X for plink's sex check pipeline. *awk* will check if there there are variants in the PAR region of your X chomosome (assumes hg38).
+
+If there are nor variants in the PAR region, then it will append '.split-x' to ensure compatibility further on. Make sure you are using the correct genome alignment for this. e.g. ReDLat files are aligned to hg38. Set up `genome_alignment` variable accordingly You can find more information on this step in [plink documentation](https://www.cog-genomics.org/plink/1.9/data#split_x)
 
 ```{bash split-PAR}
-if [[ $(awk '$1 == "25" { count++ } END { print count }' ${prefix}.bim) == "" ]]; then
-  $plink --bfile ${prefix} --split-x $genome_alignment --make-bed --out ${prefix}.split-x
+if [[ $genome_alignment != 'hg38' ]]; then
+ echo 'change start and end bp positions of X PAR in the awk command below'
+ elif [[ $(awk '$1 == "23" && ($4 <= 2781479 || $4 >= 155701383) { count++ } END { print count }' "${prefix}.bim") -gt 0 ]]; then
+  $plink --bfile ${prefix} --split-x $genome_alignment --make-bed --out ${prefix}.split-x 
 else
   mv ${prefix}.bed ${prefix}.split-x.bed
   mv ${prefix}.bim ${prefix}.split-x.bim
   mv ${prefix}.fam ${prefix}.split-x.fam
-  echo "plink files have been renamed" ${prefix}.split-x "as they already had X PAR as chromosome 25"
+  echo "plink files have been renamed" ${prefix}.split-x "as there is no PAR in chromosome 23"
 fi
 ```
 
