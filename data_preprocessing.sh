@@ -22,7 +22,7 @@ if [ $seq == 'ARRAY' ]; then
   # Note: I initially obtained basic qc metrics in the entire data and identified duplicated samples,and those are not included in $redlat_samples
   
   # II. Rename samples according to ReDLat sequence IDs
-  plink --bfile $RAW_dataset.redlat --update-ids $new_ids --keep $redlat_samples  --make-bed --out $RAW_dataset.redlat.id
+  plink --bfile $RAW_dataset.redlat --update-ids $new_ids --make-bed --out $RAW_dataset.redlat.id
     
   # III. Recode variants according to the reference genome using PLINK2
   plink2 --bfile $RAW_dataset.redlat.id --ref-from-fa force --fa $fasta_file --real-ref-alleles --make-bed --out $RAW_dataset.redlat.id.ref
