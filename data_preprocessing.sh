@@ -32,7 +32,7 @@ if [ $seq == 'ARRAY' ]; then
   awk 'BEGIN {count=1}; {if ($2 ~ /\./) {sub(/\./,"INDEL"(count++));print} else {print} }' $RAW_dataset.redlat.id.ref.var.bim > $RAW_dataset.redlat.id.ref.var.bim2
   mv $RAW_dataset.redlat.id.ref.var.bim2 $RAW_dataset.redlat.id.ref.var.bim 
 
-elif [ $seq == 'EXOME' || $seq == 'GENOME' ]; then
+elif [[ $seq == 'EXOME' || $seq == 'GENOME' ]]; then
   
   # I. Extract targets (if it's an Exome) and ReDLat samples from the original file
   if [ $seq == 'EXOME' ]; then
