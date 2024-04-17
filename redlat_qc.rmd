@@ -322,20 +322,20 @@ Summarize your sample metrics
 # We are changing the names of the columns to specify these values come from raw data
 
 if (data_type == "ARRAY"){
-  sample_metrics = subset(imiss, select = c(IID, F_MISS, N_GENO))
-  sample_metrics = rename(sample_metrics, initital_missingness = F_MISS, Initial_n_sites = N_GENO)
+  sample_statistics = subset(imiss, select = c(IID, F_MISS, N_GENO))
+  sample_statistics = rename(sample_statistics, initital_missingness = F_MISS, Initial_n_sites = N_GENO)
 } else if (exists("idepth")){ 
-  sample_metrics = rename(idepth, IID = INDV, Initial_n_sites = N_SITES, mean_initial_depth = MEAN_DEPTH)
-  # Using the "match" function, we will create a new column in 'sample_metrics' with the missingness per sample.
+  sample_statistics = rename(idepth, IID = INDV, Initial_n_sites = N_SITES, mean_initial_depth = MEAN_DEPTH)
+  # Using the "match" function, we will create a new column in 'sample_statistics' with the missingness per sample.
   # imiss and idepth should have the same samples in the same order, but using the "match" function will be useful when   we start dropping samples
-  sample_metrics$initital_missingness = imiss$F_MISS[match(sample_metrics$IID, imiss$INDV)]
+  sample_statistics$initital_missingness = imiss$F_MISS[match(sample_statistics$IID, imiss$INDV)]
 } else {
-  sample_metrics = subset(imiss, select = c(INDV, F_MISS, N_DATA))
-  sample_metrics = rename(imiss, IID = INDV, initital_missingness = F_MISS, Initial_n_sites = N_DATA)
+  sample_statistics = subset(imiss, select = c(INDV, F_MISS, N_DATA))
+  sample_statistics = rename(imiss, IID = INDV, initital_missingness = F_MISS, Initial_n_sites = N_DATA)
 }
 # Save as a file
-write.table(sample_metrics,
-            "sample_metrics.txt", 
+write.table(sample_statistics,
+            "sample_statistics.txt", 
             col.names = TRUE, 
             row.names = FALSE, 
             quote = FALSE)
@@ -517,12 +517,12 @@ fi
 
 > Individuals missing more than 10% of the data get removed in this step. Removed individuals will be written to *prefix.mind.irem*
 
-Update your sample_metrics file
+Update your sample_statistics file
 
 ```{r update-sample-metrics-1}
 if(data_type=="EXOME" || data_type=="GENOME"){
   imiss_qc = read.delim(paste0(prefix,".mind.imiss"))
-  sample_metrics$GQDP_missingness = imiss_qc$F_MISS[match(sample_metrics$IID, imiss_qc$INDV)]
+  sample_statistics$GQDP_missingness = imiss_qc$F_MISS[match(sample_statistics$IID, imiss_qc$INDV)]
 }
 ```
 
@@ -673,9 +673,9 @@ legend("bottomright",
 Update your Sample Metrics dataframe
 
 ```{r update-sample-metrics-2}
-sample_metrics$heterozygosity = het$F[match(sample_metrics$IID, het$IID)]
-write.table(sample_metrics,
-            "sample_metrics.txt", 
+sample_statistics$heterozygosity = het$F[match(sample_statistics$IID, het$IID)]
+write.table(sample_statistics,
+            "sample_statistics.txt", 
             col.names = TRUE, 
             row.names = FALSE, 
             quote = FALSE)
@@ -908,22 +908,22 @@ Notice that this chunk expects at least sex check data at least in chromosome X
 
 ```{r update-sample-metrics-3}
 # Add the disclosed sex to samples
-sample_metrics$PEDSEX = sex_X$PEDSEX[match(sample_metrics$IID, sex_X$IID)]
+sample_statistics$PEDSEX = sex_X$PEDSEX[match(sample_statistics$IID, sex_X$IID)]
 # Add the calculated X chromosome sex
-sample_metrics$X_SEX = sex_X$SNPSEX[match(sample_metrics$IID, sex_X$IID)]
+sample_statistics$X_SEX = sex_X$SNPSEX[match(sample_statistics$IID, sex_X$IID)]
 # Add the calculated X chromosome sex F statistic
-sample_metrics$X_SEX_F = sex_X$F[match(sample_metrics$IID, sex_X$IID)]
+sample_statistics$X_SEX_F = sex_X$F[match(sample_statistics$IID, sex_X$IID)]
 
 if (exists("sex_Y")) {
 # Add the calculated Y chromosome sex
-sample_metrics$Y_SEX = sex_Y$SNPSEX[match(sample_metrics$IID, sex_Y$IID)]
+sample_statistics$Y_SEX = sex_Y$SNPSEX[match(sample_statistics$IID, sex_Y$IID)]
 # Add the Y chromosome snp counts
-sample_metrics$Y_SEX_count = sex_Y$YCOUNT[match(sample_metrics$IID, sex_Y$IID)]
+sample_statistics$Y_SEX_count = sex_Y$YCOUNT[match(sample_statistics$IID, sex_Y$IID)]
 }
 
 # Save it as a file
-write.table(sample_metrics,
-            "sample_metrics.txt", 
+write.table(sample_statistics,
+            "sample_statistics.txt", 
             col.names = TRUE, 
             row.names = FALSE, 
             quote = FALSE)
@@ -1351,18 +1351,18 @@ Update the Sample Metrics file:
 
 ```{r  update-sample-metrics-4}
 if(data_type=="EXOME" || data_type=="GENOME"){
-  sample_metrics$Final_n_sites = idepth_final$N_SITES[match(sample_metrics$IID, idepth_final$INDV)]
-  sample_metrics$Final_mean_depth = idepth_final$MEAN_DEPTH[match(sample_metrics$IID, idepth_final$INDV)]
-  sample_metrics$Final_missingness = imiss_final$F_MISS[match(sample_metrics$IID, imiss_final$INDV)]
+  sample_statistics$Final_n_sites = idepth_final$N_SITES[match(sample_statistics$IID, idepth_final$INDV)]
+  sample_statistics$Final_mean_depth = idepth_final$MEAN_DEPTH[match(sample_statistics$IID, idepth_final$INDV)]
+  sample_statistics$Final_missingness = imiss_final$F_MISS[match(sample_statistics$IID, imiss_final$INDV)]
 }
 
 if(data_type=="ARRAY"){
-  sample_metrics$Final_n_sites = imiss_final$N_GENO[match(sample_metrics$IID, imiss_final$IID)]
-  sample_metrics$Final_missingness = imiss_final$F_MISS[match(sample_metrics$IID, imiss_final$IID)]
+  sample_statistics$Final_n_sites = imiss_final$N_GENO[match(sample_statistics$IID, imiss_final$IID)]
+  sample_statistics$Final_missingness = imiss_final$F_MISS[match(sample_statistics$IID, imiss_final$IID)]
 }
 
-write.table(sample_metrics,
-            "sample_metrics.txt", 
+write.table(sample_statistics,
+            "sample_statistics.txt", 
             col.names = TRUE, 
             row.names = FALSE, 
             quote = FALSE)
