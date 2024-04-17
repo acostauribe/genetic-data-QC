@@ -323,15 +323,15 @@ Summarize your sample metrics
 
 if (data_type == "ARRAY"){
   sample_statistics = subset(imiss, select = c(IID, F_MISS, N_GENO))
-  sample_statistics = rename(sample_statistics, initital_missingness = F_MISS, Initial_n_sites = N_GENO)
+  sample_statistics = rename(sample_statistics, Initial_missingness = F_MISS, Initial_n_sites = N_GENO)
 } else if (exists("idepth")){ 
-  sample_statistics = rename(idepth, IID = INDV, Initial_n_sites = N_SITES, mean_initial_depth = MEAN_DEPTH)
+  sample_statistics = rename(idepth, IID = INDV, Initial_n_sites = N_SITES, Initial_mean_depth = MEAN_DEPTH)
   # Using the "match" function, we will create a new column in 'sample_statistics' with the missingness per sample.
   # imiss and idepth should have the same samples in the same order, but using the "match" function will be useful when   we start dropping samples
-  sample_statistics$initital_missingness = imiss$F_MISS[match(sample_statistics$IID, imiss$INDV)]
+  sample_statistics$Initial_missingness = imiss$F_MISS[match(sample_statistics$IID, imiss$INDV)]
 } else {
   sample_statistics = subset(imiss, select = c(INDV, F_MISS, N_DATA))
-  sample_statistics = rename(imiss, IID = INDV, initital_missingness = F_MISS, Initial_n_sites = N_DATA)
+  sample_statistics = rename(imiss, IID = INDV, Initial_missingness = F_MISS, Initial_n_sites = N_DATA)
 }
 # Save as a file
 write.table(sample_statistics,
@@ -452,7 +452,7 @@ fi
 
 ## 4. Genotype Quality control {#section-4}
 
-This step is only possible to do when data is in a VCF file that has been properly annotated with genotype depth (DP) and genotype quality (GQ). Notice that no sites will be eliminated, as this only affects individual calls. For example if an individuals genotype for a given variant is below desired thresholds, its turned into a missing value in that individual.
+This step is only possible to do when data is in a VCF file that has been properly annotated with genotype depth (DP) and genotype quality (GQ). Notice that no sites will be eliminated, as this only affects individual calls. For example if an individuals genotype for a given variant is below desired thresholds, it's turned into a missing value in that individual.
 
 ```{bash genotype-qc}
 if [[ "$data_type" == "EXOME"  || "$data_type" == "GENOME" ]] && [[ "$genotype_filter" == "TRUE" ]]; then
@@ -470,7 +470,7 @@ else
 fi
 ```
 
-**Note**: VCFtools output can be compressed directly into a .gz file by adding `–stdout | gzip -c > newname.gz`, but it wont generate a .log file, which are useful for debugging.
+**Note**: VCFtools output can be compressed directly into a .gz file by adding `–stdout | gzip -c > newname.gz`, but it won't generate a .log file, which are useful for debugging.
 
 Organize files
 
@@ -549,6 +549,7 @@ fi
 ```
 
 Update prefix variable
+
 ```{r update-prefix-2}
 prefix=(paste0(prefix,".miss"))
 Sys.setenv(prefix=prefix)
@@ -680,7 +681,7 @@ write.table(sample_statistics,
             row.names = FALSE, 
             quote = FALSE)
 
-# Update your statistical_measure dataframe
+# Update your dataset_statistics dataframe
 dataset_statistics = bind_rows(dataset_statistics,
                                   heterozygosity_sample)
 # Save as a file
@@ -743,7 +744,7 @@ fi
 if [ $(awk -F' ' '{sum+=$5;} END {print sum;}' ${prefix}.split-x.fam) != '0' ]; then
   # Retain X chromosome and calculate r2 between the variants in a given window
   # This step requires that the .bim file has variant IDs in the second column
-  # it will generate two files: plink.prune.in y plink.prune.out
+  # it will generate two files: plink.prune.in and plink.prune.out
   $plink --bfile ${prefix}.split-x --chr 23 --indep-pairwise 50 5 0.2
   
   # Extract unlinked variants in x
@@ -772,7 +773,7 @@ sex_X = read.delim(file = paste0(prefix,".split-x.chrX.sexcheck"),
                     sep = '')
 
 # Plot these coefficients comparing males vs. females
-# Roughly you expect Female to have an F coefficient < 0.2-0.3 and males have an F coefficient > 0.7-0.8
+# Roughly you expect female to have an F coefficient < 0.2-0.3 and males have an F coefficient > 0.7-0.8
 # If there are individuals for which the fam has sex = 0 they will be plotted in an additional category called "no data"
 if (any(fam$V5 %in% "0")) {
   ggplot(sex_X, 
@@ -805,7 +806,7 @@ if (any(fam$V5 %in% "0")) {
 
 **Check sex according to Y chromosome**
 
-I recommend doing an initial check on the distribution of male vs female Y counts and then you can modify the detection thresholds after\
+I recommend doing an initial check on the distribution of male vs female Y counts and then you can modify the detection thresholds after.
 Detection count thresholds can be modified by changing the following flag: 
 ``--check-sex y-only [female max Y obs] [male min Y obs]``
 
@@ -877,7 +878,7 @@ if (exists("sex_Y")) {
 **Identify individuals that fail sex-check**
 
 ```{r identify-sex-check-fails}
-# Identify Identify individuals that fail in each chromosome test
+# Identify individuals that fail in each chromosome test
 fail_x = sex_X[sex_X$STATUS == 'PROBLEM',]
 if (exists("sex_Y")) {
   fail_y = sex_Y[sex_Y$STATUS == 'PROBLEM',]
@@ -938,7 +939,7 @@ Notice that KING requires to add the `.bed` at the end of the input
 $king -b ${prefix}.split-x.bed --duplicate --rplot --prefix ${prefix}.king
 ```
 
-`--duplicate` identifies duplicates or MZ twins and generates the file *\${prefix}.con* Each line represents two samples that have heterozygote concordance rate \> 80%. These samples need to be carefully addressed to determine if they are *known* biological duplicates (e.g. same patient sequenced twice), or if they are supposed to be *different* samples. For the *known* biological duplicates, you should retain the genome with the best metrics. If the genomes are from *different* samples, both genomes should be removed (you cannot tell which one does the genome belong to)
+`--duplicate` identifies duplicates or MZ twins and generates the file *\${prefix}.con*. Each line represents two samples that have heterozygote concordance rate \> 80%. These samples need to be carefully addressed to determine if they are *known* biological duplicates (e.g. same patient sequenced twice), or if they are supposed to be *different* samples. For the *known* biological duplicates, you should retain the genome with the best metrics. If the genomes are from *different* samples, both genomes should be removed (you cannot tell which one does the genome belong to)
 
 > If you have known biological replicates I suggest to go over the duplicate list manually and decide which genome to exclude from each pair. If you are not expecting any duplicates, eliminate all of them
 
@@ -999,6 +1000,8 @@ else
 fi 
 ```
 
+Oraganize all the generated files
+
 ```{bash organize-files-4}
 if [ "$tidy_up" == "TRUE" ]; then
   mkdir Heterozygosity_stats
@@ -1050,7 +1053,7 @@ if [ "$tidy_up" == "TRUE" ]; then
 fi
 ```
 
-Update Prefix
+Update prefix
 
 ```{r update-prefix-4}
 prefix=(paste0(prefix,".het.sex.dup"))
@@ -1059,7 +1062,7 @@ Sys.setenv(prefix=prefix)
 
 ## 9. Calculate relatedness {#section-9}
 
-This is specially important if you are working with samples that you know have some relatedness between them, or if you are sampling from a small community. However it is optional and can be turned on/off in 2. Customize the quality control process 'check_relatedness'.
+This is especially important if you are working with samples that you know have some relatedness between them, or if you are sampling from a small community. However it is optional and can be turned on/off in 2. Customize the quality control process 'check_relatedness'.
 
 This process is done with the software [king](https://www.kingrelatedness.com/), which uses plink files as an input.
 
@@ -1076,7 +1079,7 @@ fi
 
 **Check Relatedness**
 
-In this step you verify that disclosed relatedness among individuals matches their genetic relatedness, additionally you search for the presence of cryptic relatedness between samples.
+In this step you verify that disclosed relatedness among individuals matches their genetic relatedness. Additionally you search for the presence of cryptic relatedness between samples.
 
 If the *.fam.* file does not have a Family Identifier per genome (FID), you need to incorporate that information. You can use Plink's [--update-ids](https://www.cog-genomics.org/plink/1.9/data#update_indiv).If you know that in your data set you have parent-offspring samples, its also useful to add this information to the fam with [--update-parents](https://www.cog-genomics.org/plink/1.9/data#update_indiv)
 
