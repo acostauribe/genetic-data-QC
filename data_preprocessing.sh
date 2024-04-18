@@ -8,9 +8,9 @@ RAW_dataset='ADFTD.vqsr.snp.indel' # Name of the original file
 seq='EXOME' # Type of sequencing (GENOME, EXOME or ARRAY)
 
 # Provide additional files
-redlat_samples='redlat_samples.txt' # List of the samples to be retained from the original file. Take a look at the sample IDs in the raw file, as these may be different from the RedLat IDs. For array data in plink files you must give two column ID. See plink documentation 
+redlat_samples='redlat_samples.txt' # List of the samples to be retained from the original file. Take a look at the sample IDs in the raw file, as these may be different from the ReDLat IDs. For array data in plink files you must give two column ID. See plink documentation 
 new_ids='redlat_ids.txt' # List of the new names to be given to the samples. You need to create a file (e.g. ids.txt) where every line has two columns: 'old sample ID' 'new sample ID'. For array data in plink files you must give a four column file. old sample FID' old sample IID' 'new sample FID''new sample IID' See plink documentation.  
-targets='xgen-exome-hyb-panel-v2-targets-hg38.bed' # If your data is an EXOME, you need to provide the assay targets. make sure the vcf dile and the bed have the chromosomes using the same style
+targets='xgen-exome-hyb-panel-v2-targets-hg38.bed' # If your data is an EXOME, you need to provide the assay targets. make sure the vcf file and the bed have the chromosomes using the same style
 
 # Provide a path to your reference genome
 fasta_file='/home/acostauribe/public_html/Utilities/hg38.fa.gz'
@@ -32,12 +32,12 @@ if [ $seq == 'ARRAY' ]; then
   awk 'BEGIN {count=1}; {if ($2 ~ /\./) {sub(/\./,"INDEL"(count++));print} else {print} }' $RAW_dataset.redlat.id.ref.var.bim > $RAW_dataset.redlat.id.ref.var.bim2
   mv $RAW_dataset.redlat.id.ref.var.bim2 $RAW_dataset.redlat.id.ref.var.bim 
 
-elif [[ $seq == 'EXOME' || $seq == 'GENOME' ]]; then
+elif [[ $seq == 'EXOME' ]||[ $seq == 'GENOME' ]]; then
   
   # I. Extract targets (if it's an Exome) and ReDLat samples from the original file
   if [ $seq == 'EXOME' ]; then
     vcftools --gzvcf $RAW_dataset.vcf.gz --bed $targets --keep $redlat_samples --recode --recode-INFO-all --out $RAW_dataset.redlat
-    # WARNING: Chromosomes in the VCF and in the Target file must have the same encoding (e.g. chr#) If you need to fix this, look at Step IV
+    # WARNING: Chromosomes in the vcf and in the Target file must have the same encoding (e.g. chr#) If you need to fix this, look at Step IV
   else 
     vcftools --gzvcf $RAW_dataset.vcf.gz --keep $redlat_samples --recode --recode-INFO-all --out $RAW_dataset.redlat
   fi
@@ -56,7 +56,7 @@ elif [[ $seq == 'EXOME' || $seq == 'GENOME' ]]; then
   # IV. Recode according to the reference genome alleles and normalize INDELs
   bcftools norm --check-ref ws --fasta-ref $fasta_file --output-type z $RAW_dataset.redlat.id.vcf.gz > $RAW_dataset.redlat.id.ref.vcf.gz
   # --check-ref warn (w), exclude (x), or set/fix (s)
-  # --output-type compressed VCF (z) will bgzip the output
+  # --output-type compressed vcf (z) will bgzip the output
   # fasta file was downloaded from https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/
   # The index file fasta.fai was created using http://www.htslib.org/doc/samtools-faidx.html
   # WARNING: Chromosomes must be encoded as chr#. 
