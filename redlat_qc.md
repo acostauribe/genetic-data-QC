@@ -418,6 +418,7 @@ if(data_type=="EXOME" || data_type=="GENOME"){
   #ggsave("VQSR-preQC.png")  
 }
 ```
+![VQSR](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3VQSR.png?raw=true)
 
 Summarize statistical measures
 
