@@ -1062,7 +1062,7 @@ Sys.setenv(prefix=prefix)
 
 ## 9. Calculate relatedness {#section-9}
 
-This is especially important if you are working with samples that you know have some relatedness between them, or if you are sampling from a small community. However it is optional and can be turned on/off in 2. Customize the quality control process 'check_relatedness'.
+This step is especially important if you are working with samples that you know have some relatedness between them, or if you are sampling from a small community. However it is optional and can be turned on/off in 2. Customize the quality control process 'check_relatedness'.
 
 This process is done with the software [king](https://www.kingrelatedness.com/), which uses plink files as an input.
 
