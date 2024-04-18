@@ -314,6 +314,8 @@ if(data_type=="EXOME" || data_type=="GENOME"){
                      breaks=50)
 }
 ```
+![Mean Depths Per Sample](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_MeanDepthPerSample.png?raw=true)
+![Missingness Per Sample](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_MissPerSample.png?raw=true)
 
 Summarize your sample metrics
 
@@ -418,7 +420,9 @@ if(data_type=="EXOME" || data_type=="GENOME"){
   #ggsave("VQSR-preQC.png")  
 }
 ```
-![VQSR](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3VQSR.png?raw=true)
+![Mean Depths Per Site](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_MeanDepthPerSite.png?raw=true)
+![Missingness Per Site](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_MissPerSite.png?raw=true)
+![VQSR](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_VQSR.png?raw=true)
 
 Summarize statistical measures
 
@@ -648,6 +652,7 @@ heterozygosity_hist = hist(het$F,
                            col=c("red","blue"),
                            pch=16)
 ```
+![Heterozygosity Rate (Histogram)](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/6_Het_Hist.png?raw=true)
 
 > Heterozygosity outliers will be removed along with those that fail sex-check on next step.
 
@@ -671,6 +676,7 @@ legend("bottomright",
        col = c("red", "blue"),
        pch = 1)
 ```
+![Heterozygosity Rate (Scatter)](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/6_Het_Scatter.png?raw=true)
 
 Update your Sample Metrics dataframe
 
@@ -804,6 +810,7 @@ if (any(fam$V5 %in% "0")) {
   theme(legend.position = "none")
 }
 ```
+![F coefficient in X](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/7_Xcheck.png?raw=true)
 
 **Check sex according to Y chromosome**
 
@@ -875,6 +882,7 @@ if (exists("sex_Y")) {
     }
 }
 ```
+![Variant Count in Y](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/7_Ycheck.png?raw=true)
 
 **Identify individuals that fail sex-check**
 
