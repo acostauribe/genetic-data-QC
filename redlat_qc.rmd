@@ -1138,9 +1138,9 @@ The output of this command produces (among many others) two important files:
 
 Each row provides information for one pair of individuals. See [king documentation](https://www.kingrelatedness.com/manual.shtml#RELATED)
 
-if you get `FATAL ERROR - Please correct problems with pedigree structure` it usually means that an individual who is, for example, listed as male but shows up as the mother of another individual or vice versa)
+If you get `FATAL ERROR - Please correct problems with pedigree structure` it usually means that an individual who is, for example, listed as male but shows up as the mother of another individual or vice versa)
 
-> ⚠️ HUMAN INPUT NEEDED: **YOU** need to manually analyze these two files and generate a table including the samples that have problematic relatedness and have to be excluded (*problematic_relatedness.txt*) If your data type is GENOME or EXOME: Each row should represent the individual ID of each sample If your data type is an ARRAY: Each row is `Family ID, IndividualID`. The given IDs must match those in the *.fam*
+> ⚠️ HUMAN INPUT NEEDED: **YOU** need to manually analyze these two files and generate a table including the samples that have problematic relatedness and have to be excluded (*problematic_relatedness.txt*) If your data type is GENOME or EXOME: Each row should represent the individual ID of each sample. If your data type is an ARRAY: Each row is `Family ID, Individual ID`. The given IDs must match those in the *.fam*.
 
 ```{bash remove-problematic-relatedness}
 # If you have provided a problematic_relatedness.txt file, it will remove the listed individuals.
@@ -1158,6 +1158,7 @@ fi
 ```
 
 Tidy up
+
 ```{bash organize-files-5}
 if [ "$tidy_up" == "TRUE" ] && [ "$check_relatedness" == "TRUE" ]; then
   mkdir Relatedness_stats
@@ -1188,7 +1189,7 @@ Sys.setenv(prefix=prefix)
 
 **OPTIONAL: Check for Mendelian errors**
 
-If you know you have trios, parent-offspring duos or multigenerational families in your data set, you can use these to your benefit and check for Mendelian inconsistencies. Plink offers different commands to [identify](https://www.cog-genomics.org/plink/1.9/basic_stats#mendel) and [remove](https://www.cog-genomics.org/plink/1.9/data#set_me_missing) this inconsistencies according to the individuals in your data set.
+If you know you have trios, parent-offspring duos or multigenerational families in your data set, you can use these to your benefit and check for Mendelian inconsistencies. Plink offers different commands to [identify](https://www.cog-genomics.org/plink/1.9/basic_stats#mendel) and [remove](https://www.cog-genomics.org/plink/1.9/data#set_me_missing) these inconsistencies according to the individuals in your data set.
 
 For plink formatted data we can use:
 
@@ -1418,9 +1419,9 @@ if(data_type=="EXOME" || data_type=="GENOME"){
 }
 ```
 
-Update your statistical_measure dataframe
+Update your dataset_statsitics dataframe
 
-```{r update-statistical-measures}
+```{r update-dataset_statsitics}
 
 dataset_statistics = bind_rows(dataset_statistics,
                                  imiss_final_F,
