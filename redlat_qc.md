@@ -317,9 +317,9 @@ if(data_type=="EXOME" || data_type=="GENOME"){
 ![Mean Depths Per Sample](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_MeanDepthPerSample.png?raw=true)
 ![Missingness Per Sample](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_MissPerSample.png?raw=true)
 
-Summarize your sample metrics
+Summarize your sample statistics
 
-```{r generate-sample-metrics}
+```{r generate-sample-statistics}
 # Take the information of individuals from the .idepth file. 
 # We are changing the names of the columns to specify these values come from raw data
 
