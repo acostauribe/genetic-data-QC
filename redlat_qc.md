@@ -1359,6 +1359,10 @@ if(data_type=="EXOME" || data_type=="GENOME"){
                          names = c("preQC", "postQC"))
 }
 ```
+![Mean Depths Per Sample](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MeanDepthPerSample.png?raw=true)
+![Mean Depths comparison Pre-QC vs Post-QC](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MeanSample_prevspost.png?raw=true)
+![Missingness Per Sample](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MissPerSample.png?raw=true)
+![Missingness comparison Pre-QC vs Post-QC](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MissSample_prevspost.png?raw=true)
 
 Update the Sample Metrics file:
 
