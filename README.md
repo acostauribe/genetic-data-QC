@@ -36,7 +36,7 @@ If you are starting with a **file.vcf*, or your **file.fam* does not have the se
 **FID** Family ID of the sample\
 **PID** Paternal ID of the sample. If this individual is also in the dataset, the PID should be identical to the father's IID\
 **MID** Maternal ID of the sample. If this individual is also in the dataset, the MID should be identical to the mother's IID\
-**PHENO** Optional, if you are interested in any downstream analyses involving the phenotype. (1=control, 2=case, -9=missing)
+**PHENO** Optional, if you are interested in any downstream analyses involving the phenotype (1=control, 2=case, -9=missing)
 
 ⚠️ The **FID** given to the parents needs to match the same **FID** given to that individual for their genome.
 
