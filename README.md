@@ -87,7 +87,7 @@ If you are working with Exome or Genome data, you will also need:\
 - *II. Sample based metrics* [metrics](https://vcftools.sourceforge.net/man_latest.html#OUTPUT%20OPTIONS)
 -- missingness per sample (.imiss)
 -- depth per sample (.idepth)
-- III. Site based metrics*
+- *III. Site based metrics*
 -- Missingness per site (.lmiss)
 -- Mean depth per site (.ldepth.mean)
 --- VQSR quality [vqsr](https://gatk.broadinstitute.org/hc/en-us/articles/360035531612-Variant-Quality-Score-Recalibration-VQSR-)
@@ -95,14 +95,14 @@ If you are working with Exome or Genome data, you will also need:\
 4. **Genotype Quality control (Only for Exome and Genome data)**
 - Filter your genotypes according to genotype depth (DP) and genotype quality (GQ)
 - Filter your sites according to their Variant Quality Score Recalibration ranks
-- *Genotypes with DP and GQ below desired thresholds are turned missing values*
+- *Genotypes with DP and GQ below desired thresholds are replaced with missing values*
   
 5. **Filter for missingness** 
 - Identify samples and variants (sites) missing more than 10% of data and remove them. The 10% or 0.1 threshold can be modified as desired.
 - *Samples and variants with missingness over the desired threshold will be removed*
 
 6. **Calculate heterozygosity** 
-- Use plink to calculate sample heterozygosity and then exclude individuals that are beyoond 3 Standard deviations from the cohort mean. 
+- Use plink to calculate sample heterozygosity and then exclude individuals that are beyoond 3 standard deviations from the cohort mean. 
 - *Heterozygosity outliers will be removed*
 
 7. **Check sex**
