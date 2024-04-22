@@ -29,7 +29,7 @@ A plink formatted *file.bed*, *file.fam*, *file.bim* set, or a bgzipped *file.vc
 > - Do the variants in the *.bim* have an identifier (column 2 in *file.bim*)? Some analyses will require this information, and we may have to incorporate it to the *file.fam*/*file.bim* if its not already there. \
 > ⚠️ Make sure your files are properly aligned and the alleles are being called from the correct strand. INDELs should be [left aligned and normalized](https://samtools.github.io/bcftools/bcftools.html#norm).
 
-If you are starting with a **file.vcf*, or your **file.fam* does not have the sex/family of the samples already specified please provide an additional file `sample_data.txt` that includes all the individuals in your data and has the following header:
+If you are starting with a <file>.vcf, or your <file>.fam does not have the sex/family of the samples already specified please provide an additional file `sample_data.txt` that includes all the individuals in your data and has the following header:
 
 **IID** ID of the sample as it is in the plink IID or in the VCF\
 **SEX** should be specified (1=male, 2=female, 0=no data)\
