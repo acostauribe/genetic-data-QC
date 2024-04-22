@@ -25,7 +25,7 @@ A plink formatted *file.bed*, *file.fam*, *file.bim* set, or a bgzipped *file.vc
 > If you start with a plink dataset: 
 > - Do the Individual IDs (column 2 in *file.fam*) match what you were expecting? 
 > - Have the families been given a Family ID (column 1 in *file.fam*)?  
-> - Do the Individuals have their sex assigned (column 5 in *file.fam*?  
+> - Do the Individuals have their sex assigned (column 5 in *file.fam*)?  
 > - Do the variants in the *.bim* have an identifier (column 2 in *file.bim*)? Some analyses will require this information, and we may have to incorporate it to the *file.fam*/*file.bim* if its not already there. \
 > ⚠️ Make sure your files are properly aligned and the alleles are being called from the correct strand. INDELs should be [left aligned and normalized](https://samtools.github.io/bcftools/bcftools.html#norm).
 
