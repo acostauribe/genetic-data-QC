@@ -233,7 +233,7 @@ if(data_type=="ARRAY"){
                  header=FALSE)
 
   # If your .fam doesn't have the sex already specified, it will add the SEX from sample_data
-  if(sum(fam$V5) == 0) {
+  if(sum(fam$V5) > length(fam$V5)*0.25) {
     fam$V5 = sample_data$SEX[match(fam$V2, sample_data$IID, nomatch = 0)]
     write.table(fam,
                 paste0(prefix,".fam"), 
@@ -716,7 +716,7 @@ fam = read.delim(paste0(prefix,".fam"),
                  header=FALSE)
 
 # If your .fam doesn't have the sex already specified, it will add the SEX from sample_data
-if(sum(fam$V5) == 0) {
+if(sum(fam$V5) > length(fam$V5)*0.25) {
   fam$V5 = sample_data$SEX[match(fam$V2, sample_data$IID, nomatch = 0)]
   write.table(fam,
               paste0(prefix,".fam"), 
@@ -914,7 +914,7 @@ These samples will be removed after identifying duplicates.
 
 **Update your Sample Metrics dataframe with sex check**
 
-Notice that this chunk expects at least sex check data at least in chromosome X
+Notice that this chunk expects genetic data from x chromosome. Y chromosome data is optional.
 
 ```{r update-sample-metrics-3}
 # Add the disclosed sex to samples
@@ -1101,7 +1101,7 @@ if(check_relatedness=="TRUE"){
                   sep=' ',
                   header=FALSE)
 
-  if(sum(fam$V5) == 0) {
+  if(sum(fam$V5) > length(fam$V5)*0.25) {
     # Use match to replace the existing values in the .fam for those in sample_data
     fam$V5 = sample_data$SEX[match(fam$V2, sample_data$IID)]
     # Replace the NA for 0
