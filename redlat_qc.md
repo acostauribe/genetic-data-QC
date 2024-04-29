@@ -1431,6 +1431,8 @@ if(data_type=="EXOME" || data_type=="GENOME"){
                        col="gold1")
 }
 ```
+![Mean Depths Per Site](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MeanDepthPerSite.png?raw=true)
+![Missingness Per Site](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MissPerSite.png?raw=true)
 
 Update your dataset_statsitics dataframe
 
