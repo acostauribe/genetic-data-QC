@@ -1403,7 +1403,7 @@ if(data_type=="EXOME" || data_type=="GENOME"){
 
   # Generate basic summary statistics
   ldepth_final_mean = describe(ldepth_final$MEAN_DEPTH)
-  rownames(ldepth_final_mean) = c("final_sample_depth")
+  rownames(ldepth_final_mean) = c("final_site_depth")
   print(ldepth_final_mean)
   # Plot depth per site
   
