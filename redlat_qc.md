@@ -7,7 +7,7 @@ output:
 
 # Quality control pipeline for the ReD-Lat genomic data
 
-#### Developed by Juliana Acosta-Uribe for the ReD-Lat Consortium 2023-2024
+#### Developed by Juliana Acosta-Uribe for the ReD-Lat Consortium 2023
 
 This pipeline is designed to be run as an [R markdown](https://rmarkdown.rstudio.com/lesson-1.html) file in R Studio. This way you can run it in a step-by-step mode. However, you could also run it directly from the r command line if you already have the `sample_data.txt` and the `problematic_relatedness.txt` files in your workspace.
 
@@ -314,6 +314,8 @@ if(data_type=="EXOME" || data_type=="GENOME"){
                      breaks=50)
 }
 ```
+![Mean Depths Per Sample](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_MeanDepthPerSample.png?raw=true)
+![Missingness Per Sample](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_MissPerSample.png?raw=true)
 
 Summarize your sample statistics
 
@@ -418,6 +420,9 @@ if(data_type=="EXOME" || data_type=="GENOME"){
   #ggsave("VQSR-preQC.png")  
 }
 ```
+![Mean Depths Per Site](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_MeanDepthPerSite.png?raw=true)
+![Missingness Per Site](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_MissPerSite.png?raw=true)
+![VQSR](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/3_VQSR.png?raw=true)
 
 Summarize statistical measures
 
@@ -647,6 +652,7 @@ heterozygosity_hist = hist(het$F,
                            col=c("red","blue"),
                            pch=16)
 ```
+![Heterozygosity Rate (Histogram)](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/6_Het_Hist.png?raw=true)
 
 > Heterozygosity outliers will be removed along with those that fail sex-check on next step.
 
@@ -670,6 +676,7 @@ legend("bottomright",
        col = c("red", "blue"),
        pch = 1)
 ```
+![Heterozygosity Rate (Scatter)](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/6_Het_Scatter.png?raw=true)
 
 Update your Sample Metrics dataframe
 
@@ -803,6 +810,7 @@ if (any(fam$V5 %in% "0")) {
   theme(legend.position = "none")
 }
 ```
+![F coefficient in X](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/7_Xcheck.png?raw=true)
 
 **Check sex according to Y chromosome**
 
@@ -874,6 +882,7 @@ if (exists("sex_Y")) {
     }
 }
 ```
+![Variant Count in Y](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/7_Ycheck.png?raw=true)
 
 **Identify individuals that fail sex-check**
 
@@ -905,7 +914,7 @@ These samples will be removed after identifying duplicates.
 
 **Update your Sample Metrics dataframe with sex check**
 
-Notice that this chunk expects genetic data from X chromosome. Y chromosome data is optional.
+Notice that this chunk expects genetic data from x chromosome. Y chromosome data is optional.
 
 ```{r update-sample-metrics-3}
 # Add the disclosed sex to samples
@@ -1350,6 +1359,10 @@ if(data_type=="EXOME" || data_type=="GENOME"){
                          names = c("preQC", "postQC"))
 }
 ```
+![Mean Depths Per Sample](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MeanDepthPerSample.png?raw=true)
+![Mean Depths comparison Pre-QC vs Post-QC](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MeanSample_prevspost.png?raw=true)
+![Missingness Per Sample](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MissPerSample.png?raw=true)
+![Missingness comparison Pre-QC vs Post-QC](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MissSample_prevspost.png?raw=true)
 
 Update the Sample Metrics file:
 
@@ -1418,6 +1431,8 @@ if(data_type=="EXOME" || data_type=="GENOME"){
                        col="gold1")
 }
 ```
+![Mean Depths Per Site](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MeanDepthPerSite.png?raw=true)
+![Missingness Per Site](https://github.com/acostauribe/genetic-data-QC/blob/apr17/redlat_result/10_MissPerSite.png?raw=true)
 
 Update your dataset_statsitics dataframe
 
