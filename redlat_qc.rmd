@@ -2,14 +2,21 @@
 output:
   html_document:
     keep_md: yes
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
-
 
 # Quality control pipeline for the ReD-Lat genomic data
 
 #### Developed by Juliana Acosta-Uribe for the ReD-Lat Consortium 2023-2024
 
-This pipeline is designed to be run as an [R markdown](https://rmarkdown.rstudio.com/lesson-1.html) file in R Studio. This way you can run it in a step-by-step mode. However, you could also run it directly from the r command line if you already have the `sample_data.txt` and the `problematic_relatedness.txt` files in your workspace.
+This pipeline is designed to be run as an [R
+markdown](https://rmarkdown.rstudio.com/lesson-1.html) file in R Studio.
+This way you can run it in a step-by-step mode. However, you could also
+run it directly from the r command line if you already have the
+`sample_data.txt` and the `problematic_relatedness.txt` files in your
+workspace.
 
 ```         
 library(rmarkdown)
@@ -20,29 +27,40 @@ For this pipeline you will need the following:
 
 ### Data:
 
-A plink formatted .*bed*, .*fam*, .*bim* set, or a bgzipped *.vcf.gz* file.
+A plink formatted .*bed*, .*fam*, .*bim* set, or a bgzipped *.vcf.gz*
+file.
 
-**Always Take a look at your files before beginning:** 
+**Always Take a look at your files before beginning:**
 
-If you start with a plink dataset: \ 
-- Do the Individual IDs (column 2 in *.fam*) match what you were expecting? \ 
-- Have the families been given a Family ID (column 1 in *.fam*)? \ 
-- Do the Individuals have their sex assigned (column 5 in *.fam*? \ 
-- Do the variants in the *.bim* have an identifier (column 2 in *.bim*)? Some analyses will require this information, and we may have to incorporate it to the *.fam*/*.bim* if its not already there. \
-Make sure your files are properly aligned and the alleles are being called from the correct strand. INDELs should be [left aligned and normalized](https://samtools.github.io/bcftools/bcftools.html#norm).
+If you start with a plink dataset:   - Do the Individual IDs (column 2
+in *.fam*) match what you were expecting?   - Have the families been
+given a Family ID (column 1 in *.fam*)?   - Do the Individuals have
+their sex assigned (column 5 in *.fam*?   - Do the variants in the
+*.bim* have an identifier (column 2 in *.bim*)? Some analyses will
+require this information, and we may have to incorporate it to the
+*.fam*/*.bim* if its not already there.\
+Make sure your files are properly aligned and the alleles are being
+called from the correct strand. INDELs should be [left aligned and
+normalized](https://samtools.github.io/bcftools/bcftools.html#norm).
 
-**Sample Data File** 
+**Sample Data File**
 
-If you are starting with a *.vcf*, or your *.fam* does not have the sex /family of the samples already specified please provide an additional file with a header as follows:
+If you are starting with a *.vcf*, or your *.fam* does not have the sex
+/family of the samples already specified please provide an additional
+file with a header as follows:
 
 **IID** ID of the sample as it is in the plink IID or in the VCF\
 **SEX** should be specified (1=male, 2=female, 0=no data)\
 **FID** Family ID of the sample\
-**PID** Paternal ID of the sample. If this individual is also in the dataset, the PID should be identical to the father's IID\
-**MID** Maternal ID of the sample. If this individual is also in the dataset, the MID should be identical to the mother's IID\
-**PHENO** Optional, if you are interested in any downstream analyses involving the phenotype. (1=control, 2=case, -9=missing)
+**PID** Paternal ID of the sample. If this individual is also in the
+dataset, the PID should be identical to the father's IID\
+**MID** Maternal ID of the sample. If this individual is also in the
+dataset, the MID should be identical to the mother's IID\
+**PHENO** Optional, if you are interested in any downstream analyses
+involving the phenotype. (1=control, 2=case, -9=missing)
 
-⚠️ The **FID** given to the parents needs to match the same **FID** given to that individual for their genome.
+⚠️ The **FID** given to the parents needs to match the same **FID**
+given to that individual for their genome.
 
 A trio would look like this (order of the columns does not matter)
 
@@ -52,21 +70,21 @@ A trio would look like this (order of the columns does not matter)
 | FID1 | MOM | 0   | 0   | 2   | 1     |
 | FID1 | DAD | 0   | 0   | 1   | 1     |
 
-R is expecting a tab delimited file. If your file is delimited by spaces you can fix it with the following bash command `sed -i 's/ /\t/g'  sample_data.txt`
-
+R is expecting a tab delimited file. If your file is delimited by spaces
+you can fix it with the following bash command
+`sed -i 's/ /\t/g'  sample_data.txt`
 
 ### Software:
 
--[R](https://www.r-project.org/)\
+\-[R](https://www.r-project.org/)\
 -[RStudio](https://posit.co/download/rstudio-desktop/)\
 -[plink](https://www.cog-genomics.org/plink2/)\
 -[king](https://www.kingrelatedness.com/)
 
 If you are working with Exome or Genome data, you will also need:
 
--[vcftools](https://vcftools.github.io/man_latest.html)\
+\-[vcftools](https://vcftools.github.io/man_latest.html)\
 -[bcftools](https://samtools.github.io/bcftools/bcftools.html)
-
 
 ### Contents Table:
 
@@ -79,12 +97,14 @@ If you are working with Exome or Genome data, you will also need:
 [7. Check sex](#section-7)\
 [8. Identify duplicates](#section-8)\
 [9. Calculate relatedness](#section-9)\
-[10. Remove variants & Individuals and with missingness ≥5%](#section-10)
-
+[10. Remove variants & Individuals and with missingness
+≥5%](#section-10)
 
 ## 1. Set up your environment {#section-1}
 
-In this first step you will install the packages that R needs to run the quality control process and you will define the paths to your working directory and software.
+In this first step you will install the packages that R needs to run the
+quality control process and you will define the paths to your working
+directory and software.
 
 ```{r environment-setup}
 # Install required R packages:
@@ -93,32 +113,32 @@ install.packages("knitr")
 library(knitr)
 
 # Set your working directory:
-knitr::opts_chunk$set(root.dir = "~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/Exome_Seq/Joint_call_fixed",
+knitr::opts_chunk$set(root.dir = "~/path/to/directory",
                       dev = "png",
                       dpi = 300,
                       echo = FALSE,
                       cache = TRUE)
-setwd("~/Genetic-Sequencing_raw-data/HudsonAlpha_J.Nicholas.Cochran/redlat/Exome_Seq/Joint_call_fixed")
+setwd("~/path/to/directory")
 
 
 # Set up path to software:
-Sys.setenv(plink='/home/acostauribe/bin/plink')
-Sys.setenv(king='/home/acostauribe/bin/king')
-Sys.setenv(vcftools='/usr/bin/vcftools')
-Sys.setenv(bcftools='/usr/bin/bcftools')
+Sys.setenv(plink='/path/to/plink')
+Sys.setenv(king='/path/to/ing')
+Sys.setenv(vcftools='/path/to/vcftools')
+Sys.setenv(bcftools='/path/to/bcftools')
 
 # Give the name of your starting file without the .bed or .vcf.gz extension
-prefix="redlat_exome"
+prefix="data"
 Sys.setenv(prefix=prefix)
 
 # Define the type of data you will be working with. 
 # Answers can be "GENOME", "EXOME", "ARRAY"
-data_type="EXOME"
+data_type="ARRAY"
 Sys.setenv(data_type=data_type)
 
 # Specify your reference genome
 # Answers can be 'hg19', 'hg38'
-genome_alignment="hg38"
+genome_alignment="hg19"
 Sys.setenv(genome_alignment=genome_alignment)
 
 # Import the text file that contains the information for your samples. 
@@ -142,7 +162,7 @@ Choose what you want to do in the analysis:
 # Do you want to do filter variant calls for genotype depth (DP) and Genotype Quality (GQ)? 
 ## This can only be done if you start with a VCF file and requires that the "DP and 'GQ' FORMAT tag is included for each genotype.
 ## TRUE Includes only sites with DP/GQ (over all included individuals) greater than or equal to the given value 
-genotype_filter=TRUE
+genotype_filter=FALSE
 # Define the values you want to use as threshold
 DP=10
 GQ=20
@@ -158,7 +178,7 @@ check_relatedness=FALSE
 
 # Do you want to create directories and to organize your data as you go?
 ## TRUE generates directories and organizes your files as you run the pipeline
-tidy_up=TRUE
+tidy_up=FALSE
 
 # Make these values into system environment variables
 Sys.setenv(genotype_filter=genotype_filter)
@@ -171,17 +191,22 @@ Sys.setenv(tidy_up=tidy_up)
 
 ## 3. Start Quality Control process {#section-3}
 
-Before starting, take some time to look at your data and calculate some basic quality metrics. If you are starting with a vcf file from Exome or Genome data, after running the following chunk you should have at least the 6 following files:
+Before starting, take some time to look at your data and calculate some
+basic quality metrics. If you are starting with a vcf file from Exome or
+Genome data, after running the following chunk you should have at least
+the 6 following files:
 
-**I. General statistics** [.vchk](https://samtools.github.io/bcftools/bcftools.html#stats)\
-**II. Sample based metrics** [metrics](https://vcftools.sourceforge.net/man_latest.html#OUTPUT%20OPTIONS)\
+**I. General statistics**
+[.vchk](https://samtools.github.io/bcftools/bcftools.html#stats)\
+**II. Sample based metrics**
+[metrics](https://vcftools.sourceforge.net/man_latest.html#OUTPUT%20OPTIONS)\
 1. missingness per sample (.imiss)\
 2. depth per sample (.idepth)\
 **III. Site based metrics**\
 1. Missingness per site (.lmiss)\
 2. Mean depth per site (.ldepth.mean)\
-3. VQSR quality [vqsr](https://gatk.broadinstitute.org/hc/en-us/articles/360035531612-Variant-Quality-Score-Recalibration-VQSR-)
-
+3. VQSR quality
+[vqsr](https://gatk.broadinstitute.org/hc/en-us/articles/360035531612-Variant-Quality-Score-Recalibration-VQSR-)
 
 ```{bash get-preQC-stats-2}
 if [[ "$data_type" == "EXOME" || "$data_type" == "GENOME" ]]; then
@@ -223,38 +248,49 @@ if [[ "$data_type" == "EXOME" || "$data_type" == "GENOME" ]]; then
 fi
 ```
 
-If your starting dataset is a plink file from a snp array, you will first have to edit the .fam with the samples sex and the only statistics you get are missingness per sample and per site. \
-If you don't add sex to the fam before calculating missingness, plink wont calculate missingness values for Y chromosome. 
+If your starting dataset is a plink file from a snp array, you will
+first have to edit the .fam with the samples sex and the only statistics
+you get are missingness per sample and per site.\
+If you don't add sex to the fam before calculating missingness, plink
+wont calculate missingness values for Y chromosome.
 
 ```{r edit-fam-1}
-if(data_type=="ARRAY"){
-  fam = read.delim(paste0(prefix,".fam"),
-                 sep=' ',
-                 header=FALSE)
+if(data_type == "ARRAY") {
+  fam = read.delim(paste0(prefix, ".fam"),
+                   sep = ' ',
+                   header = FALSE)
 
-  # If your .fam doesn't have the sex already specified, it will add the SEX from sample_data
-  if(sum(fam$V5) > length(fam$V5)*0.25) {
+  # If your .fam doesn't have the sex already specified, it will add the SEX from sample_data. This a heuristic approach, but it can detect if samples are missing sex data assuming you have males and females in your dataset.
+if(sum(fam$V5) < length(fam$V5) * 0.25) {
+  # Check if 'sample_data' exists in the environment
+  if (exists("sample_data")) {
     fam$V5 = sample_data$SEX[match(fam$V2, sample_data$IID, nomatch = 0)]
     write.table(fam,
-                paste0(prefix,".fam"), 
-                col.names = FALSE, 
-                row.names = FALSE, 
-                quote = FALSE)
+                  paste0(prefix, ".fam"), 
+                  col.names = FALSE, 
+                  row.names = FALSE, 
+                  quote = FALSE)
+    } else { 
+      print("No sample data was provided, cannot annotate .fam")
+    }
+  } else {
+     print(".fam file has sex values")
   }
 }
 ```
 
-Then, use plink for Site and individual missingness in SNP Array. \
-It will produce .lmiss and .imiss files      
+Then, use plink for Site and individual missingness in SNP Array.\
+It will produce .lmiss and .imiss files
+
 ```{bash get-preQC-stats-1}
 if [[ "$data_type" == "ARRAY" ]]; then
   $plink --bfile ${prefix} --missing --out ${prefix}.preqc
-  rm *.hh
 fi
 ```
 
 
-You can then proceed to get some plots and statistics from your initial files.
+You can then proceed to get some plots and statistics from your initial
+files.
 
 **Sample based metrics**
 
@@ -452,7 +488,12 @@ fi
 
 ## 4. Genotype Quality control {#section-4}
 
-This step is only possible to do when data is in a VCF file that has been properly annotated with genotype depth (DP) and genotype quality (GQ). Notice that no sites will be eliminated, as this only affects individual calls. For example if an individuals genotype for a given variant is below desired thresholds, it's turned into a missing value in that individual.
+This step is only possible to do when data is in a VCF file that has
+been properly annotated with genotype depth (DP) and genotype quality
+(GQ). Notice that no sites will be eliminated, as this only affects
+individual calls. For example if an individuals genotype for a given
+variant is below desired thresholds, it's turned into a missing value in
+that individual.
 
 ```{bash genotype-qc}
 if [[ "$data_type" == "EXOME"  || "$data_type" == "GENOME" ]] && [[ "$genotype_filter" == "TRUE" ]]; then
@@ -470,7 +511,9 @@ else
 fi
 ```
 
-**Note**: VCFtools output can be compressed directly into a .gz file by adding `–stdout | gzip -c > newname.gz`, but it won't generate a .log file, which are useful for debugging.
+**Note**: VCFtools output can be compressed directly into a .gz file by
+adding `–stdout | gzip -c > newname.gz`, but it won't generate a .log
+file, which are useful for debugging.
 
 Organize files
 
@@ -494,7 +537,8 @@ if((data_type=="EXOME" || data_type=="GENOME") && (genotype_filter=="TRUE")){
 
 ## 5. Filter for missingness {#section-5}
 
-Identify samples and variants missing more than 10% of data and remove them. The 10% or 0.1 threshold can be modified as desired.
+Identify samples and variants missing more than 10% of data and remove
+them. The 10% or 0.1 threshold can be modified as desired.
 
 ```{bash filter-missingness}
 if [[ "$data_type" == "EXOME" || "$data_type" == "GENOME" ]]; then
@@ -511,11 +555,12 @@ if [[ "$data_type" == "EXOME" || "$data_type" == "GENOME" ]]; then
 else 
   # Remove samples missing more than 10% of data
   $plink --bfile ${prefix} --mind 0.1 --make-bed --out ${prefix}.miss
-  rm *.hh
+   
 fi
 ```
 
-> Individuals missing more than 10% of the data get removed in this step. Removed individuals will be written to *prefix.mind.irem*
+> Individuals missing more than 10% of the data get removed in this
+> step. Removed individuals will be written to *prefix.mind.irem*
 
 Update your sample_statistics file
 
@@ -557,9 +602,18 @@ Sys.setenv(prefix=prefix)
 
 ## 6. Calculate heterozygosity {#section-6}
 
-This is a recommended step when you are analyzing cohorts with either SNP array or Whole genome sequencing.
+This is a recommended step when you are analyzing cohorts with either
+SNP array or Whole genome sequencing.
 
-We prefer plink to calculate sample heterozygosity. Plink uses a *sliding window* approach to identify variants in linkage disequilibrium. There are many options to modify the behavior or this approach in [plink's documentation](https://www.cog-genomics.org/plink/1.9/ld#indep). The LD pruning requires that the *.bim* file has variant IDs in the second column. If no variants have been assigned, you could do a preliminary step using [--set-missing-var-ids](https://www.cog-genomics.org/plink/1.9/data#set_missing_var_ids).
+We prefer plink to calculate sample heterozygosity. Plink uses a
+*sliding window* approach to identify variants in linkage
+disequilibrium. There are many options to modify the behavior or this
+approach in [plink's
+documentation](https://www.cog-genomics.org/plink/1.9/ld#indep). The LD
+pruning requires that the *.bim* file has variant IDs in the second
+column. If no variants have been assigned, you could do a preliminary
+step using
+[--set-missing-var-ids](https://www.cog-genomics.org/plink/1.9/data#set_missing_var_ids).
 
 ```{bash import-vcf, echo=FALSE}
 if [ "$data_type" == "GENOME" ] || [ "$data_type" == "EXOME" ]; then
@@ -570,6 +624,7 @@ mv ${prefix}.bim ${prefix}.bim-original
 awk 'BEGIN {count=1}; {if ($2 ~ /\./) {sub(/\./,"INDEL"(count++));print} else {print} }' ${prefix}.bim-original > ${prefix}.bim
 fi
 ```
+
 ```{bash calculate-heterozygosity, echo=FALSE}
 # I have this as an if statement because im still deciding if this is a good measure for exomes. 
 if [ "$data_type" == "GENOME" ] || [ "$data_type" == "ARRAY" ] || [ "$data_type" == "EXOME" ]; then
@@ -604,7 +659,7 @@ het = read.delim(file = paste0(prefix,".het.het"),
 
 # Generate basic summary statistics
 heterozygosity_sample = describe(het$F)
-rownames(heterozygosity_sample) = c("Sample_heterozygosity")
+rownames(heterozygosity_sample) = c("sample_heterozygosity")
 print(heterozygosity_sample)
 
 # Calculate limits for excluding samples [3 standard deviations]
@@ -642,15 +697,17 @@ heterozygosity_hist = hist(het$F,
                     abline(v = (heterozygosity_low_limit), col="red")
                     abline(v = (heterozygosity_high_limit), col="red")
                     abline(v = (mean(het$F)), col="blue") 
-                    legend("topleft",
+                    legend("topright",
                            c("+/-3 SD","mean"),
                            col=c("red","blue"),
                            pch=16)
 ```
 
-> Heterozygosity outliers will be removed along with those that fail sex-check on next step.
+> Heterozygosity outliers will be removed along with those that fail
+> sex-check on next step.
 
-It is useful to visualize heterozygosity F statistic vs. missingness per sample
+It is useful to visualize heterozygosity F statistic vs. missingness per
+sample
 
 ```{r heterozygosity-vs-missing}
 # Load your data:
@@ -700,7 +757,9 @@ print(dataset_statistics)
 
 A. Verify that *prefix.fam* has a 'sex' value on the 5 column.
 
-If the values are 0 or -9, you can assign 'sex value' in plink with the --update-sex command. You can also use R to edit the .fam by running the following chunk
+If the values are 0 or -9, you can assign 'sex value' in plink with the
+--update-sex command. You can also use R to edit the .fam by running the
+following chunk
 
 ```{r edit-fam-2}
 # Load your dataframes
@@ -708,33 +767,59 @@ fam = read.delim(paste0(prefix,".fam"),
                  sep=' ',
                  header=FALSE)
 
-# If your .fam doesn't have the sex already specified, it will add the SEX from sample_data
-if(sum(fam$V5) > length(fam$V5)*0.25) {
-  fam$V5 = sample_data$SEX[match(fam$V2, sample_data$IID, nomatch = 0)]
-  write.table(fam,
-              paste0(prefix,".fam"), 
-              col.names = FALSE, 
-              row.names = FALSE, 
-              quote = FALSE)
-} else {print("fam already contains sex values") }
+  # If your .fam doesn't have the sex already specified, it will add the SEX from sample_data
+if(sum(fam$V5) < length(fam$V5) * 0.25) {
+  # Check if 'sample_data' exists in the environment
+  if (exists("sample_data")) {
+    fam$V5 = sample_data$SEX[match(fam$V2, sample_data$IID, nomatch = 0)]
+    write.table(fam,
+                  paste0(prefix, ".fam"), 
+                  col.names = FALSE, 
+                  row.names = FALSE, 
+                  quote = FALSE)
+    } else { 
+      print("No sample data was provided, cannot annotate .fam")
+    } 
+  } else {
+    print("fam file has sex data")
+}
+
 ```
 
 B. Split Pseudo-Autosomic region (PAR) of X
 
-It is necessary to remove the PAR region of X for plink's sex check pipeline. *awk* will check if there there are variants in the PAR region of your X chomosome (assumes hg38).
+It is necessary to remove the PAR region of X for plink's sex check
+pipeline. *awk* will check if there there are variants in the PAR region
+of your X chomosome (assumes hg38).
 
-If there are nor variants in the PAR region, then it will append '.split-x' to ensure compatibility further on. Make sure you are using the correct genome alignment for this. e.g. ReDLat files are aligned to hg38. Set up `genome_alignment` variable accordingly You can find more information on this step in [plink documentation](https://www.cog-genomics.org/plink/1.9/data#split_x)
+If there are nor variants in the PAR region, then it will append
+'.split-x' to ensure compatibility further on. Make sure you are using
+the correct genome alignment for this. e.g. ReDLat files are aligned to
+hg38. Set up `genome_alignment` variable accordingly You can find more
+information on this step in [plink
+documentation](https://www.cog-genomics.org/plink/1.9/data#split_x)
 
 ```{bash split-PAR}
-if [[ $genome_alignment != 'hg38' ]]; then
- echo 'change start and end bp positions of X PAR in the awk command below'
- elif [[ $(awk '$1 == "23" && ($4 <= 2781479 || $4 >= 155701383) { count++ } END { print count }' "${prefix}.bim") -gt 0 ]]; then
-  $plink --bfile ${prefix} --split-x $genome_alignment --make-bed --out ${prefix}.split-x 
+if [[ $genome_alignment == 'hg19' ]]; then
+  if [[ $(awk '$1 == "23" && ($4 <= 2699520 || $4 >= 154931044) { count++ } END { print count }' "${prefix}.bim") -gt 0 ]]; then
+    $plink --bfile ${prefix} --split-x $genome_alignment --make-bed --out ${prefix}.split-x
+  else
+    mv ${prefix}.bed ${prefix}.split-x.bed
+    mv ${prefix}.bim ${prefix}.split-x.bim
+    mv ${prefix}.fam ${prefix}.split-x.fam
+    echo "plink files have been renamed to ${prefix}.split-x as there is no PAR in chromosome 23"
+  fi
+elif [[ $genome_alignment == 'hg38' ]]; then
+  if [[ $(awk '$1 == "23" && ($4 <= 2781479 || $4 >= 155701383) { count++ } END { print count }' "${prefix}.bim") -gt 0 ]]; then
+    $plink --bfile ${prefix} --split-x $genome_alignment --make-bed --out ${prefix}.split-x
+  else
+    mv ${prefix}.bed ${prefix}.split-x.bed
+    mv ${prefix}.bim ${prefix}.split-x.bim
+    mv ${prefix}.fam ${prefix}.split-x.fam
+    echo "plink files have been renamed to ${prefix}.split-x as there is no PAR in chromosome 23"
+  fi
 else
-  mv ${prefix}.bed ${prefix}.split-x.bed
-  mv ${prefix}.bim ${prefix}.split-x.bim
-  mv ${prefix}.fam ${prefix}.split-x.fam
-  echo "plink files have been renamed" ${prefix}.split-x "as there is no PAR in chromosome 23"
+  echo "Genome alignment must be either 'hg19' or 'hg38'."
 fi
 ```
 
@@ -751,7 +836,7 @@ if [ $(awk -F' ' '{sum+=$5;} END {print sum;}' ${prefix}.split-x.fam) != '0' ]; 
   $plink --bfile ${prefix}.split-x --extract plink.prune.in --make-bed --out ${prefix}.split-x.LD
   
   # Calculate heterozygosity F statistic of X chromosome
-  $plink --bfile ${prefix}.split-x.LD  --check-sex 0.35 0.7  --out ${prefix}.split-x.chrX
+  $plink --bfile ${prefix}.split-x.LD  --check-sex 0.25 0.8  --out ${prefix}.split-x.chrX
   
   rm plink.*
   rm ${prefix}.split-x.LD.*
@@ -806,9 +891,10 @@ if (any(fam$V5 %in% "0")) {
 
 **Check sex according to Y chromosome**
 
-I recommend doing an initial check on the distribution of male vs female Y counts and then you can modify the detection thresholds after.
-Detection count thresholds can be modified by changing the following flag: 
-``--check-sex y-only [female max Y obs] [male min Y obs]``
+I recommend doing an initial check on the distribution of male vs female
+Y counts and then you can modify the detection thresholds after.
+Detection count thresholds can be modified by changing the following
+flag: `--check-sex y-only [female max Y obs] [male min Y obs]`
 
 ```{bash check-sex-Y}
 if [[ $(awk '$1 == "24" { count++ } END { print count }' ${prefix}.split-x.bim) != "" ]]; then
@@ -905,7 +991,8 @@ These samples will be removed after identifying duplicates.
 
 **Update your Sample Metrics dataframe with sex check**
 
-Notice that this chunk expects genetic data from X chromosome. Y chromosome data is optional.
+Notice that this chunk expects genetic data from X chromosome. Y
+chromosome data is optional.
 
 ```{r update-sample-metrics-3}
 # Add the disclosed sex to samples
@@ -930,7 +1017,6 @@ write.table(sample_statistics,
             quote = FALSE)
 ```
 
-
 ## 8. Identify duplicate samples {#section-8}
 
 Notice that KING requires to add the `.bed` at the end of the input
@@ -939,34 +1025,56 @@ Notice that KING requires to add the `.bed` at the end of the input
 $king -b ${prefix}.split-x.bed --duplicate --rplot --prefix ${prefix}.king
 ```
 
-`--duplicate` identifies duplicates or MZ twins and generates the file *\${prefix}.con*. Each line represents two samples that have heterozygote concordance rate \> 80%. These samples need to be carefully addressed to determine if they are *known* biological duplicates (e.g. same patient sequenced twice), or if they are supposed to be *different* samples. For the *known* biological duplicates, you should retain the genome with the best metrics. If the genomes are from *different* samples, both genomes should be removed (you cannot tell which one does the genome belong to)
+`--duplicate` identifies duplicates or MZ twins and generates the file
+*\${prefix}.con*. Each line represents two samples that have
+heterozygote concordance rate \> 80%. These samples need to be carefully
+addressed to determine if they are *known* biological duplicates (e.g.
+same patient sequenced twice), or if they are supposed to be *different*
+samples. For the *known* biological duplicates, you should retain the
+genome with the best metrics. If the genomes are from *different*
+samples, both genomes should be removed (you cannot tell which one does
+the genome belong to)
 
-> If you have known biological replicates I suggest to go over the duplicate list manually and decide which genome to exclude from each pair. If you are not expecting any duplicates, eliminate all of them
+> If you have known biological replicates I suggest to go over the
+> duplicate list manually and decide which genome to exclude from each
+> pair. If you are not expecting any duplicates, eliminate all of them
 
 Make a list of duplicate samples:
 
 ```{r list-duplicate-samples}
 king_file=paste0(prefix,".king.con")
-duplicates_df = read.delim(king_file, header = TRUE)
-duplicate_1 = select(duplicates_df, FID1, ID1)
-colnames(duplicate_1) = c("FID", "IID")
-duplicate_2 = select(duplicates_df, FID2, ID2)
-colnames(duplicate_2) = c("FID", "IID")
-duplicates_id = unique(bind_rows(duplicate_1, duplicate_2))
+
+if (file.exists(king_file)) {
+  duplicates_df = read.delim(king_file, header = TRUE)
+  duplicate_1 = select(duplicates_df, FID1, ID1)
+  colnames(duplicate_1) = c("FID", "IID")
+  duplicate_2 = select(duplicates_df, FID2, ID2)
+  colnames(duplicate_2) = c("FID", "IID")
+  duplicates_id = unique(bind_rows(duplicate_1, duplicate_2))
 
 write.table(duplicates_id, file = "duplicated_samples.txt",
             quote = FALSE,
             row.names = FALSE,
             col.names = TRUE)
 print(paste(nrow(duplicates_id), "samples are found to be duplicates according to the KING algorythm. IDs are written in duplicated_samples.txt"))
+} else{
+  print("No duplicate samples were found")
+}
 ```
 
-Generate a list of individuals that are heterozygosity outliers, fail sex checks and/or duplicate samples
+Generate a list of individuals that are heterozygosity outliers, fail
+sex checks and/or duplicate samples
 
 ```{r write-het-sex-dup-removals}
-het_sex_dup = unique(bind_rows(het_outlier_id,
-                        sex_fail_id,
-                        duplicates_id))
+het_sex_dup = list()
+
+# Check if each data frame exists and add it to the list if it does
+if (exists("het_outlier_id")) het_sex_dup = append(het_sex_dup, list(het_outlier_id))
+if (exists("sex_fail_id")) het_sex_dup = append(het_sex_dup, list(sex_fail_id))
+if (exists("duplicates_id")) het_sex_dup = append(het_sex_dup, list(duplicates_id))
+
+# Bind the rows of all existing data frames and get unique rows
+het_sex_dup = unique(dplyr::bind_rows(het_sex_dup))
 
 if(data_type=="EXOME" || data_type=="GENOME"){
 write.table(select(het_sex_dup, IID),
@@ -986,14 +1094,16 @@ print(paste(nrow(het_sex_dup), "samples are found to be heterozygosity outliers,
 
 **Remove heterozygosity outliers, sex-fails and duplicates**
 
-Note: For Plink datasets we will merge X PAR into X and turn haploid calls into missing calls before removing het_sex_dup.txt
+Note: For Plink datasets we will merge X PAR into X and turn haploid
+calls into missing calls before removing het_sex_dup.txt
+
 ```{bash remove-het-sex-dup}
 if [[ "$data_type" == "GENOME" || "$data_type" == "EXOME" ]]; then
   vcftools --gzvcf ${prefix}.vcf.gz --remove het_sex_dup.irem --recode --recode-INFO-all --out ${prefix}.het.sex.dup
   mv  ${prefix}.het.sex.dup.recode.vcf ${prefix}.het.sex.dup.vcf
   bgzip ${prefix}.het.sex.dup.vcf
 else
-  $plink --bfile ${prefix}.split-x --merge-x --make-bed --out ${prefix}.merged-x
+  $plink --bfile ${prefix}.split-x --merge-x no-fail --make-bed --out ${prefix}.merged-x
   $plink --bfile ${prefix}.merged-x --set-hh-missing --make-bed --out ${prefix}.merged-x.hh
   $plink --bfile ${prefix}.merged-x.hh --remove het_sex_dup.irem --make-bed --out  ${prefix}.het.sex.dup
   rm ${prefix}.merged-x.*
@@ -1015,7 +1125,7 @@ if [ "$tidy_up" == "TRUE" ]; then
     mv ${prefix}.split-x.chrY.* ./Sex_check
   fi
   #mv sex_fail_samples.txt ./Sex_check
-  rm *.hh
+   
   
   if [[ "$data_type" == "GENOME" || "$data_type" == "EXOME" ]]; then
   rm *.nosex
@@ -1062,9 +1172,14 @@ Sys.setenv(prefix=prefix)
 
 ## 9. Calculate relatedness {#section-9}
 
-This step is especially important if you are working with samples that you know have some relatedness between them, or if you are sampling from a small community. However it is optional and can be turned on/off in 2. Customize the quality control process 'check_relatedness'.
+This step is especially important if you are working with samples that
+you know have some relatedness between them, or if you are sampling from
+a small community. However it is optional and can be turned on/off in 2.
+Customize the quality control process 'check_relatedness'.
 
-This process is done with the software [king](https://www.kingrelatedness.com/), which uses plink files as an input.
+This process is done with the software
+[king](https://www.kingrelatedness.com/), which uses plink files as an
+input.
 
 ```{bash import-plink}
 # If you have a vcf file, import it into plink 
@@ -1079,9 +1194,16 @@ fi
 
 **Check Relatedness**
 
-In this step you verify that disclosed relatedness among individuals matches their genetic relatedness. Additionally you search for the presence of cryptic relatedness between samples.
+In this step you verify that disclosed relatedness among individuals
+matches their genetic relatedness. Additionally you search for the
+presence of cryptic relatedness between samples.
 
-If the *.fam.* file does not have a Family Identifier per genome (FID), you need to incorporate that information. You can use Plink's [--update-ids](https://www.cog-genomics.org/plink/1.9/data#update_indiv).If you know that in your data set you have parent-offspring samples, its also useful to add this information to the fam with [--update-parents](https://www.cog-genomics.org/plink/1.9/data#update_indiv)
+If the *.fam.* file does not have a Family Identifier per genome (FID),
+you need to incorporate that information. You can use Plink's
+[--update-ids](https://www.cog-genomics.org/plink/1.9/data#update_indiv).If
+you know that in your data set you have parent-offspring samples, its
+also useful to add this information to the fam with
+[--update-parents](https://www.cog-genomics.org/plink/1.9/data#update_indiv)
 
 You can also use R to edit the *.fam* by running the following chunk
 
@@ -1092,17 +1214,20 @@ if(check_relatedness=="TRUE"){
                   sep=' ',
                   header=FALSE)
 
-  if(sum(fam$V5) > length(fam$V5)*0.25) {
-    # Use match to replace the existing values in the .fam for those in sample_data
-    fam$V5 = sample_data$SEX[match(fam$V2, sample_data$IID)]
-    # Replace the NA for 0
-    fam$V5[is.na(fam$V5)] = 0
-    write.table(fam,
-                paste0(prefix,".fam"), 
-                col.names = FALSE, 
-                row.names = FALSE, 
-                quote = FALSE)
+  if(sum(fam$V5) < length(fam$V5) * 0.25) {
+    # Check if 'sample_data' exists in the environment
+    if (exists("sample_data")) {
+      fam$V5 = sample_data$SEX[match(fam$V2, sample_data$IID, nomatch = 0)]
+      write.table(fam,
+                  paste0(prefix, ".fam"), 
+                  col.names = FALSE, 
+                  row.names = FALSE, 
+                  quote = FALSE)
+    } else { 
+      print("No sample data was provided, cannot annotate .fam")
+    }
   }
+
   # Use match to replace the existing values in the .fam for those in sample_data
   fam$V1 = sample_data$FID[match(fam$V2, sample_data$IID, nomatch = 0)]
   fam$V3 = sample_data$PID[match(fam$V2, sample_data$IID, nomatch = 0)]
@@ -1131,16 +1256,28 @@ else
 fi
 ```
 
-The output of this command produces (among many others) two important files: 
+The output of this command produces (among many others) two important
+files:
 
-* *{prefix}.king.kin* Relatedness in disclosed relationships
-* *{prefix}.king.kin0* Inferred relatedness in 'unrelated' individuals. 
+-   *{prefix}.king.kin* Relatedness in disclosed relationships
+-   *{prefix}.king.kin0* Inferred relatedness in 'unrelated'
+    individuals.
 
-Each row provides information for one pair of individuals. See [king documentation](https://www.kingrelatedness.com/manual.shtml#RELATED)
+Each row provides information for one pair of individuals. See [king
+documentation](https://www.kingrelatedness.com/manual.shtml#RELATED)
 
-If you get `FATAL ERROR - Please correct problems with pedigree structure` it usually means that an individual who is, for example, listed as male but shows up as the mother of another individual or vice versa)
+If you get
+`FATAL ERROR - Please correct problems with pedigree structure` it
+usually means that an individual who is, for example, listed as male but
+shows up as the mother of another individual or vice versa)
 
-> ⚠️ HUMAN INPUT NEEDED: **YOU** need to manually analyze these two files and generate a table including the samples that have problematic relatedness and have to be excluded (*problematic_relatedness.txt*) If your data type is GENOME or EXOME: Each row should represent the individual ID of each sample. If your data type is an ARRAY: Each row is `Family ID, Individual ID`. The given IDs must match those in the *.fam*.
+> ⚠️ HUMAN INPUT NEEDED: **YOU** need to manually analyze these two
+> files and generate a table including the samples that have problematic
+> relatedness and have to be excluded (*problematic_relatedness.txt*) If
+> your data type is GENOME or EXOME: Each row should represent the
+> individual ID of each sample. If your data type is an ARRAY: Each row
+> is `Family ID, Individual ID`. The given IDs must match those in the
+> *.fam*.
 
 ```{bash remove-problematic-relatedness}
 # If you have provided a problematic_relatedness.txt file, it will remove the listed individuals.
@@ -1189,7 +1326,12 @@ Sys.setenv(prefix=prefix)
 
 **OPTIONAL: Check for Mendelian errors**
 
-If you know you have trios, parent-offspring duos or multigenerational families in your data set, you can use these to your benefit and check for Mendelian inconsistencies. Plink offers different commands to [identify](https://www.cog-genomics.org/plink/1.9/basic_stats#mendel) and [remove](https://www.cog-genomics.org/plink/1.9/data#set_me_missing) these inconsistencies according to the individuals in your data set.
+If you know you have trios, parent-offspring duos or multigenerational
+families in your data set, you can use these to your benefit and check
+for Mendelian inconsistencies. Plink offers different commands to
+[identify](https://www.cog-genomics.org/plink/1.9/basic_stats#mendel)
+and [remove](https://www.cog-genomics.org/plink/1.9/data#set_me_missing)
+these inconsistencies according to the individuals in your data set.
 
 For plink formatted data we can use:
 
@@ -1199,7 +1341,12 @@ if [ "$data_type" == "ARRAY" ]; then
 fi
 ```
 
-If you are working with a VCF there are [plugins](https://samtools.github.io/bcftools/howtos/plugin.mendelian.html) for bcftools or [programs](https://gatk.broadinstitute.org/hc/en-us/articles/360037594831-FindMendelianViolations-Picard-) that do it, however they usually require trios (both parents + offspring). Please refer to the source pages for its usage
+If you are working with a VCF there are
+[plugins](https://samtools.github.io/bcftools/howtos/plugin.mendelian.html)
+for bcftools or
+[programs](https://gatk.broadinstitute.org/hc/en-us/articles/360037594831-FindMendelianViolations-Picard-)
+that do it, however they usually require trios (both parents +
+offspring). Please refer to the source pages for its usage
 
 ```{bash organize-files-6}
 if [ "$tidy_up" == "TRUE" ] && [ -f ${prefix}.me.bed ]; then
@@ -1211,6 +1358,7 @@ fi
 ```
 
 Update prefix
+
 ```{r update-prefix-6}
 if (file.exists(paste0(prefix,".me.bed"))) {
   prefix=(paste0(prefix,".me"))
@@ -1220,9 +1368,13 @@ if (file.exists(paste0(prefix,".me.bed"))) {
 
 ## 10. Remove variants & Individuals and with missingness ≥5% {#section-10}
 
-After refining our data set we finally remove the variants and the individuals that are missing more than 5% of the data. 
+After refining our data set we finally remove the variants and the
+individuals that are missing more than 5% of the data.
 
-You can change your threshold of inclusion with the ``--max-missing`` flag for vcf files [0 = all data allowed, 1 = no missing data allowed] or the ``--geno`` flag for plink files [1 = all data allowed, 0 = no missing data allowed].
+You can change your threshold of inclusion with the `--max-missing` flag
+for vcf files [0 = all data allowed, 1 = no missing data allowed] or the
+`--geno` flag for plink files [1 = all data allowed, 0 = no missing data
+allowed].
 
 ```{bash final-missingness}
 if [ "$data_type" == "EXOME" ] || [ "$data_type" == "GENOME" ]; then
@@ -1267,7 +1419,8 @@ prefix=(paste0(prefix,".qc"))
 Sys.setenv(prefix=prefix)
 ```
 
-If you feel like plotting your results, you can redo the plots from the 1st part:
+If you feel like plotting your results, you can redo the plots from the
+1st part:
 
 ```{bash get-postQC-stats}
 if [ "$data_type" == "EXOME" ] || [ "$data_type" == "GENOME" ]
@@ -1297,7 +1450,8 @@ else
 fi
 ```
 
-Plot missingess per variant and per individual *Before* and *After* the quality control process
+Plot missingess per variant and per individual *Before* and *After* the
+quality control process
 
 **Individual based metrics**
 
