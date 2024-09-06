@@ -11,12 +11,7 @@ editor_options:
 
 #### Developed by Juliana Acosta-Uribe for the ReD-Lat Consortium 2023-2024
 
-This pipeline is designed to be run as an [R
-markdown](https://rmarkdown.rstudio.com/lesson-1.html) file in R Studio.
-This way you can run it in a step-by-step mode. However, you could also
-run it directly from the r command line if you already have the
-`sample_data.txt` and the `problematic_relatedness.txt` files in your
-workspace.
+This pipeline is designed to be run as an [R markdown](https://rmarkdown.rstudio.com/lesson-1.html) file in R Studio. This way you can run it in a step-by-step mode. However, you could also run it directly from the r command line if you already have the `sample_data.txt` and the `problematic_relatedness.txt` files in your workspace.
 
 ```         
 library(rmarkdown)
