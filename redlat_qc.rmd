@@ -1461,7 +1461,7 @@ rownames(imiss_final_F) = c("final_sample_missingness")
 print(imiss_final_F)
 
 # Plot Missingness rate per sample
-imiss_hist_final = hist(imiss$F_MISS,
+imiss_hist_final = hist(imiss_final$F_MISS,
                          xlab="Missingness rate", 
                          ylab="Samples", 
                          main="Missingness rate per sample post QC",
