@@ -985,11 +985,11 @@ write.table(fail_x, file = "sex_fail_samples.txt",
             quote = FALSE,
             row.names = FALSE,
             col.names = FALSE)
-print(paste(nrow(sex_fail_id), "samples have missmatched X chromosome sex. IDs are written in sex_fail_samples.txt"))
+print(paste(nrow(fail_x), "samples have missmatched X chromosome sex. IDs are written in sex_fail_samples.txt"))
 
 if (exists("sex_Y")) {
   fail_y = sex_Y[sex_Y$STATUS == 'PROBLEM',]
-  print(paste(nrow(sex_fail_id), "samples have unexpected count value in Y Chromosome. Take a look at the", Y_check_file, "These samples won't be excluded automatically"))
+  print(paste(nrow(fail_y), "samples have unexpected count value in Y Chromosome. Take a look at the", Y_check_file, "These samples won't be excluded automatically"))
 }
 ```
 
