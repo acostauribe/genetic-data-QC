@@ -1116,7 +1116,7 @@ else
 fi 
 ```
 
-Oraganize all the generated files
+Organize all the generated files
 
 ```{bash organize-files-4}
 if [ "$tidy_up" == "TRUE" ]; then
