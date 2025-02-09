@@ -499,20 +499,22 @@ variant is below desired thresholds, it's turned into a missing value in
 that individual.
 
 ```{bash genotype-qc}
-if [[ "$data_type" == "EXOME"  || "$data_type" == "GENOME" ]]; then
+if [[ "$data_type" == "EXOME" || "$data_type" == "GENOME" ]]; then
   if [[ "$genotype_filter" == "TRUE" ]]; then
     if [[ "$vqsr_PASS" == "TRUE" ]]; then
       $vcftools --gzvcf ${prefix}.vcf.gz --minDP $DP --minGQ $GQ --remove-filtered-all --recode --recode-INFO-all --out ${prefix}.DP$DP.GQ$GQ
     else
       $vcftools --gzvcf ${prefix}.vcf.gz --minDP $DP --minGQ $GQ --recode --recode-INFO-all --out ${prefix}.DP$DP.GQ$GQ
     fi
-    mv ${prefix}.DP$DP.GQ$GQ.recode.vcf  ${prefix}.DP$DP.GQ$GQ.vcf
+    mv ${prefix}.DP$DP.GQ$GQ.recode.vcf ${prefix}.DP$DP.GQ$GQ.vcf
     bgzip ${prefix}.DP$DP.GQ$GQ.vcf
-  elif [[ "$genotype_filter" == 'FALSE' ]]; then
+  elif [[ "$genotype_filter" == "FALSE" ]]; then
     echo "genotype_filter was set to FALSE, this step is skipped"
-elif [[ "$data_type" == "ARRAY"]]; then
+  fi
+elif [[ "$data_type" == "ARRAY" ]]; then
   echo "Plink data cannot be checked for depth or genotype quality"
 fi
+
 ```
 
 **Note**: VCFtools output can be compressed directly into a .gz file by
