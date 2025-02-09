@@ -1076,7 +1076,7 @@ het_sex_dup = list()
 
 # Check if each data frame exists and add it to the list if it does
 if (exists("het_outlier_id")) het_sex_dup = append(het_sex_dup, list(het_outlier_id))
-if (exists("sex_fail_id")) het_sex_dup = append(het_sex_dup, list(sex_fail_id))
+if (exists("fail_x")) het_sex_dup = append(het_sex_dup, list(fail_x))
 if (exists("duplicates_id")) het_sex_dup = append(het_sex_dup, list(duplicates_id))
 
 # Bind the rows of all existing data frames and get unique rows
