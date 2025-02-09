@@ -973,28 +973,22 @@ if (exists("sex_Y")) {
 
 **Identify individuals that fail sex-check**
 
+Per Plink's software recomendations, samples will only be cluded as 'sex-fails' if they have x misstch. Y chromosome data may be scarce for older males: see e.g. Dumanski JP et al. (2014) Smoking is associated with mosaic loss of chromosome Y.
+Y chromosomes check will be added to the sample_statistics.txt as supporting data.
+
 ```{r identify-sex-check-fails}
 # Identify individuals that fail in each chromosome test
 fail_x = sex_X[sex_X$STATUS == 'PROBLEM',]
-if (exists("sex_Y")) {
-  fail_y = sex_Y[sex_Y$STATUS == 'PROBLEM',]
-}
-
-# Merge 
-if (exists("sex_Y")) {
-  sex_fail = bind_rows(fail_x,
-                       fail_y)
-  } else {
-  sex_fail = bind_rows(fail_x)
-}
-
-sex_fail_id = unique(select(sex_fail, FID, IID))
-
-write.table(sex_fail_id, file = "sex_fail_samples.txt", 
+write.table(fail_x, file = "sex_fail_samples.txt", 
             quote = FALSE,
             row.names = FALSE,
             col.names = FALSE)
-print(paste(nrow(sex_fail_id), "samples have missmatched sex. IDs are written in sex_fail_samples.txt"))
+print(paste(nrow(sex_fail_id), "samples have missmatched X chromosome sex. IDs are written in sex_fail_samples.txt"))
+
+if (exists("sex_Y")) {
+  fail_y = sex_Y[sex_Y$STATUS == 'PROBLEM',]
+  print(paste(nrow(sex_fail_id), "samples have unexpected count value in Y Chromosome. Take a look at the", Y_check_file, "These samples won't be excluded automatically"))
+}
 ```
 
 These samples will be removed after identifying duplicates.
