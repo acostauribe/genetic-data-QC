@@ -102,9 +102,10 @@ quality control process and you will define the paths to your working
 directory and software.
 
 ```{r environment-setup}
-# Install required R packages:
-if (!require("knitr", quietly = TRUE))
-install.packages("knitr")
+# Ensure "knitr" is installed and loaded
+if (!requireNamespace("knitr", quietly = TRUE)) {
+  install.packages("knitr")
+}
 library(knitr)
 
 # Set your working directory:
@@ -290,12 +291,18 @@ files.
 **Sample based metrics**
 
 ```{r plot-preQC-stats-ind}
-if (!require("psych", quietly = TRUE))
-install.packages("psych")
+# Ensure "psych" is installed and loaded
+if (!requireNamespace("psych", quietly = TRUE)) {
+  install.packages("psych")
+}
 library(psych)
-if (!require("dplyr", quietly = TRUE))
-install.packages("dplyr")
+
+# Ensure "dplyr" is installed and loaded
+if (!requireNamespace("dplyr", quietly = TRUE)) {
+  install.packages("dplyr")
+}
 library(dplyr)
+
 
 # Individual Missingness 
 imiss = read.delim(file = paste0(prefix,".preqc.imiss"), 
@@ -375,8 +382,9 @@ write.table(sample_statistics,
 **Site based metrics**
 
 ```{r plot-preQC-stats-site}
-if (!require("ggplot2", quietly = TRUE))
-install.packages("ggplot2")
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
 library(ggplot2)
 
 # Site Missingness
@@ -491,17 +499,18 @@ variant is below desired thresholds, it's turned into a missing value in
 that individual.
 
 ```{bash genotype-qc}
-if [[ "$data_type" == "EXOME"  || "$data_type" == "GENOME" ]] && [[ "$genotype_filter" == "TRUE" ]]; then
-  if [[ "$vqsr_PASS" == "TRUE" ]]; then
-    $vcftools --gzvcf ${prefix}.vcf.gz --minDP $DP --minGQ $GQ --remove-filtered-all --recode --recode-INFO-all --out ${prefix}.DP$DP.GQ$GQ
-  else
-    $vcftools --gzvcf ${prefix}.vcf.gz --minDP $DP --minGQ $GQ --recode --recode-INFO-all --out ${prefix}.DP$DP.GQ$GQ
-  fi
-  mv ${prefix}.DP$DP.GQ$GQ.recode.vcf  ${prefix}.DP$DP.GQ$GQ.vcf
-  bgzip ${prefix}.DP$DP.GQ$GQ.vcf
-elif [[ "$genotype_filter" == 'FALSE' ]]; then
-  echo "genotype_filter was set to FALSE, this step is skipped"
-else
+if [[ "$data_type" == "EXOME"  || "$data_type" == "GENOME" ]]; then
+  if [[ "$genotype_filter" == "TRUE" ]]; then
+    if [[ "$vqsr_PASS" == "TRUE" ]]; then
+      $vcftools --gzvcf ${prefix}.vcf.gz --minDP $DP --minGQ $GQ --remove-filtered-all --recode --recode-INFO-all --out ${prefix}.DP$DP.GQ$GQ
+    else
+      $vcftools --gzvcf ${prefix}.vcf.gz --minDP $DP --minGQ $GQ --recode --recode-INFO-all --out ${prefix}.DP$DP.GQ$GQ
+    fi
+    mv ${prefix}.DP$DP.GQ$GQ.recode.vcf  ${prefix}.DP$DP.GQ$GQ.vcf
+    bgzip ${prefix}.DP$DP.GQ$GQ.vcf
+  elif [[ "$genotype_filter" == 'FALSE' ]]; then
+    echo "genotype_filter was set to FALSE, this step is skipped"
+elif [[ "$data_type" == "ARRAY"]]; then
   echo "Plink data cannot be checked for depth or genotype quality"
 fi
 ```
@@ -844,9 +853,12 @@ Plot sex in X chromosome
 
 ```{r plot-sex-X}
 
-if (!require("ggbeeswarm", quietly = TRUE))
-install.packages("ggbeeswarm")
+# Ensure "ggbeeswarm" is installed and loaded
+if (!requireNamespace("ggbeeswarm", quietly = TRUE)) {
+  install.packages("ggbeeswarm")
+}
 library(ggbeeswarm)
+
 
 sex_X = read.delim(file = paste0(prefix,".split-x.chrX.sexcheck"), 
                     header = TRUE, 
@@ -906,9 +918,12 @@ fi
 Plot sex in Y chromosome
 
 ```{r plot-sex-Y}
-if (!require("ggbeeswarm", quietly = TRUE))
-install.packages("ggbeeswarm")
+# Ensure "ggbeeswarm" is installed and loaded
+if (!requireNamespace("ggbeeswarm", quietly = TRUE)) {
+  install.packages("ggbeeswarm")
+}
 library(ggbeeswarm)
+
 
 # File path to search
 Y_check_file = paste0(prefix,".split-x.chrY.sexcheck")
