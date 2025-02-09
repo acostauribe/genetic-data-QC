@@ -134,7 +134,7 @@ Sys.setenv(data_type=data_type)
 
 # Specify your reference genome
 # Answers can be 'hg19', 'hg38'
-genome_alignment="hg19"
+genome_alignment="hg38"
 Sys.setenv(genome_alignment=genome_alignment)
 
 # Import the text file that contains the information for your samples. 
