@@ -484,7 +484,7 @@ Organize all the generated files
 
 ```{bash organize-files-1}
 if [ "$tidy_up" == "TRUE" ]; then
-  mkdir Pre-QC_stats
+  mkdir -p Pre-QC_stats
   mv ${prefix}.preqc.* ./Pre-QC_stats
 fi
 ```
@@ -525,7 +525,7 @@ Organize files
 
 ```{bash organize-files-2}
 if [ "$tidy_up" == "TRUE" ]; then
-  mkdir File_evolution
+  mkdir -p File_evolution
   if [[ "$data_type" == "EXOME" || "$data_type" == "GENOME" ]] && [[ "$genotype_filter" == "TRUE" ]]; then
     mv ${prefix}.vcf.gz ./File_evolution
   fi
@@ -1124,12 +1124,12 @@ Organize all the generated files
 
 ```{bash organize-files-4}
 if [ "$tidy_up" == "TRUE" ]; then
-  mkdir Heterozygosity_stats
+  mkdir -p Heterozygosity_stats
   mv *.het ./Heterozygosity_stats
   mv *.het.log ./Heterozygosity_stats
   #mv heterozygosity_outliers.txt ./Heterozygosity_stats
   
-  mkdir Sex_check
+  mkdir -p Sex_check
   mv ${prefix}.split-x.chrX.* ./Sex_check
   if [ -f ${prefix}.split-x.chrY.sexcheck ]; then
     mv ${prefix}.split-x.chrY.* ./Sex_check
@@ -1141,7 +1141,7 @@ if [ "$tidy_up" == "TRUE" ]; then
   rm *.nosex
   fi
   
-  mkdir Duplicate_analysis
+  mkdir -p Duplicate_analysis
   mv ${prefix}.king* ./Duplicate_analysis
   #mv duplicated_samples.txt ./Duplicate_analysis
   
@@ -1165,7 +1165,7 @@ if [ "$tidy_up" == "TRUE" ]; then
     mv ${prefix}.vcf.gz ./File_evolution
   fi
   
-  mkdir Missingness_stats
+  mkdir -p Missingness_stats
   mv *.miss.imiss ./Missingness_stats
   mv *.miss.lmiss ./Missingness_stats
   mv *.miss.log ./Missingness_stats
@@ -1308,7 +1308,7 @@ Tidy up
 
 ```{bash organize-files-5}
 if [ "$tidy_up" == "TRUE" ] && [ "$check_relatedness" == "TRUE" ]; then
-  mkdir Relatedness_stats
+  mkdir -p Relatedness_stats
   mv ${prefix}.king* ./Relatedness_stats
   
   if [ -f ${prefix}.rel.vcf.gz ]; then
@@ -1408,7 +1408,7 @@ Tidy up
 
 ```{bash organize-files-7}
 if [ "$tidy_up" == "TRUE" ]; then
-  mkdir Post-QC_stats
+  mkdir -p Post-QC_stats
   
   if [ "$data_type" == "EXOME" ] || [ "$data_type" == "GENOME" ]; then 
   mv *.mind-2.ikeep ./Missingness_stats
