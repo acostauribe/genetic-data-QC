@@ -581,9 +581,9 @@ Tidy up
 
 ```{bash organize-files-3}
 if [ "$tidy_up" == "TRUE" ]; then
+  mkdir -p genotype_qc Pre-QC_stats File_evolution
   if [[ "$data_type" == "GENOME" || "$data_type" == "EXOME" ]]; then
     if [[ "$genotype_filter" == "TRUE" ]]; then
-      mkdir genotype_qc
       mv ${prefix}.mind.* ./genotype_qc
     else
       mv ${prefix}.mind.* ./Pre-QC_stats
@@ -594,7 +594,11 @@ if [ "$tidy_up" == "TRUE" ]; then
     mv ${prefix}.bim ./File_evolution
     mv ${prefix}.fam ./File_evolution
     mv ${prefix}.log ./File_evolution
-    mv ${prefix}.miss.irem ./File_evolution
+
+    # Check if ${prefix}.miss.irem exists before moving
+    if [ -e "${prefix}.miss.irem" ]; then
+      mv ${prefix}.miss.irem ./File_evolution
+    fi
   fi
 fi
 ```
